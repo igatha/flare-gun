@@ -7,5 +7,11 @@
 	<string>Used to communicate with nearby devices during emergencies.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Used to broadcast SOS messages during emergencies.</string>
+    
+    <!-- Location Usage Descriptions -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Used to access location during emergencies while app is in use.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Used to access location during emergencies while app is in the background.</string>
 </dict>
 </plist>
