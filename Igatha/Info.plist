@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-    <!-- Bluetooh Usage Descriptions -->
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Used to communicate with nearby devices during emergencies.</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Used to broadcast SOS messages during emergencies.</string>
-    
-    <!-- Location Usage Descriptions -->
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Used to access location during emergencies while app is in use.</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Used to access location during emergencies while app is in the background.</string>
-</dict>
+    <dict>
+        <!-- Bluetooh Usage Descriptions -->
+        <key>NSBluetoothAlwaysUsageDescription</key>
+        <string>Used to communicate with nearby devices during emergencies.</string>
+        <key>NSBluetoothPeripheralUsageDescription</key>
+        <string>Used to broadcast SOS messages during emergencies.</string>
+        
+        <!-- Location Usage Descriptions -->
+        <key>NSLocationWhenInUseUsageDescription</key>
+        <string>Used to access location during emergencies while app is in use.</string>
+        <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+        <string>Used to access location during emergencies while app is in the background.</string>
+        
+        <!-- Background modes -->
+        <key>UIBackgroundModes</key>
+        <array>
+            <string>location</string>
+            <string>bluetooth-peripheral</string>
+            <string>bluetooth-central</string>
+        </array>
+    </dict>
 </plist>
