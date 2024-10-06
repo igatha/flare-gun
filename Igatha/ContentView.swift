@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var bluetoothManager = BluetoothManager()
+    
     var body: some View {
         Text("Hello, world!")
             .padding()
