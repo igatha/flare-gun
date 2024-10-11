@@ -8,12 +8,18 @@
 import Foundation
 import CoreBluetooth
 
-class LocationBroadcaster: NSObject {
+class LocationBroadcaster: NSObject, ObservableObject {
+    private var locationManager: LocationManager!
     private var peripheralManager: CBPeripheralManager!
     
-    override init() {
+    @Published public private(set) var broadcastEnabled = false
+    
+    init(
+        with locationManager: LocationManager
+    ) {
         super.init()
         
+        self.locationManager = locationManager
         self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
 }
@@ -24,6 +30,7 @@ extension LocationBroadcaster: CBPeripheralManagerDelegate {
         switch peripheral.state {
         case .poweredOn:
             // TODO: Improve handling case
+            broadcastEnabled = true
             print("LocationBroadcaster: poweredOn")
         case .poweredOff, .resetting, .unknown:
             // TODO: Improve handling cases
@@ -49,7 +56,10 @@ extension LocationBroadcaster: CBPeripheralManagerDelegate {
         }
         
         // ensure we're ready to broadcast
-        guard peripheralManager.state == .poweredOn else { return }
+        guard
+            peripheralManager.state == .poweredOn,
+            locationManager.locationEnabled
+        else { return }
         
         // setup location discovery service
         let locationDiscoveryService = setupLocationDiscoveryService()
@@ -90,7 +100,7 @@ extension LocationBroadcaster: CBPeripheralManagerDelegate {
     
     // creates read-only latitude characteristic
     private func setupLatitudeCharacteristic() -> CBMutableCharacteristic {
-        var latitude = 1.0
+        var latitude = locationManager.latitude
         let data = withUnsafeBytes(of: &latitude) { Data($0) }
         
         return CBMutableCharacteristic(
@@ -103,7 +113,7 @@ extension LocationBroadcaster: CBPeripheralManagerDelegate {
     
     // creates read-only longitude characteristic
     private func setupLongitudeCharacteristic() -> CBMutableCharacteristic {
-        var longitude = 2.0
+        var longitude = locationManager.longitude
         let data = withUnsafeBytes(of: &longitude) { Data($0) }
         
         return CBMutableCharacteristic(
