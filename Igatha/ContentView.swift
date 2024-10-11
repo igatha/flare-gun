@@ -8,25 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var locationManager: LocationManager
-    
-    @StateObject private var locationBroadcaster: LocationBroadcaster
+    @StateObject private var sosBeacon: SOSBeacon
     
     init() {
-        let locationManager = LocationManager()
-        _locationManager = StateObject(wrappedValue: locationManager)
-        
-        let locationBroadcaster = LocationBroadcaster(
-            with: locationManager
-        )
-        _locationBroadcaster = StateObject(wrappedValue: locationBroadcaster)
-    }
-    
-    var isButtonEnabled: Bool {
-        return (
-            locationManager.locationEnabled &&
-            locationBroadcaster.broadcastEnabled
-        )
+        let sosBeacon = SOSBeacon()
+        _sosBeacon = StateObject(wrappedValue: sosBeacon)
     }
     
     var body: some View {
@@ -34,22 +20,17 @@ struct ContentView: View {
             Text("Hello, world!")
                 .padding()
             
-            Text("Latitude: \(locationManager.latitude)")
-            Text("Longitude: \(locationManager.longitude)")
-            Text("Altitude: \(locationManager.altitude)")
-            
-            Text("Location enabled: \(locationManager.locationEnabled)")
-            Text("Broadcast enabled: \(locationBroadcaster.broadcastEnabled)")
+            Text("Broadcast enabled: \(sosBeacon.broadcastEnabled)")
             
             // start broadcasting button
             Button(action: {
                 // start broadcasting
-                locationBroadcaster.startBroadcasting()
+                sosBeacon.startBroadcasting()
             }) {
                 Text("SOS")
                     .padding()
                     .background(
-                        isButtonEnabled
+                        sosBeacon.broadcastEnabled
                         ? Color.red
                         : Color.gray
                     )
@@ -57,7 +38,7 @@ struct ContentView: View {
                     .cornerRadius(8)
             }
             .disabled(
-                !isButtonEnabled
+                !sosBeacon.broadcastEnabled
             )
             .padding()
             

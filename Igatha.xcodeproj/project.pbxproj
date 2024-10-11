@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		595C0AEC2CB1F179009A20E9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 595C0AEB2CB1F179009A20E9 /* CoreLocation.framework */; };
 		595C0AEE2CB1F181009A20E9 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 595C0AED2CB1F181009A20E9 /* CoreBluetooth.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		595C0AD42CB17946009A20E9 /* Igatha.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Igatha.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		595C0AEB2CB1F179009A20E9 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		595C0AED2CB1F181009A20E9 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -44,7 +42,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				595C0AEE2CB1F181009A20E9 /* CoreBluetooth.framework in Frameworks */,
-				595C0AEC2CB1F179009A20E9 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,7 +69,6 @@
 			isa = PBXGroup;
 			children = (
 				595C0AED2CB1F181009A20E9 /* CoreBluetooth.framework */,
-				595C0AEB2CB1F179009A20E9 /* CoreLocation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

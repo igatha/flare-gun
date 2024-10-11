@@ -8,16 +8,9 @@
         <key>NSBluetoothPeripheralUsageDescription</key>
         <string>Used to broadcast SOS messages during emergencies.</string>
         
-        <!-- Location Usage Descriptions -->
-        <key>NSLocationWhenInUseUsageDescription</key>
-        <string>Used to access location during emergencies while app is in use.</string>
-        <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-        <string>Used to access location during emergencies while app is in the background.</string>
-        
         <!-- Background modes -->
         <key>UIBackgroundModes</key>
         <array>
-            <string>location</string>
             <string>bluetooth-peripheral</string>
             <string>bluetooth-central</string>
         </array>
