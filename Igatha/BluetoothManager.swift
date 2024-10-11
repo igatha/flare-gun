@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreBluetooth
+import CoreLocation
 
 class BluetoothManager: NSObject {
     // list of devices that have been discovered
@@ -15,7 +16,6 @@ class BluetoothManager: NSObject {
     public var devicesListUpdatedHandler: (() -> Void)?
     
     private var centralManager: CBCentralManager!
-    private var peripheralManager: CBPeripheralManager!
     
     private let queue = DispatchQueue(
         label: Constants.DispatchQueueLabel,
@@ -25,11 +25,15 @@ class BluetoothManager: NSObject {
         target: nil
     )
     
+    private var characteristics = [
+        Constants.LatitudeCharacteristicID,
+        Constants.LongitudeCharacteristicID
+    ]
+    
     override init() {
         super.init()
         
         self.centralManager = CBCentralManager(delegate: self, queue: nil)
-        self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
 }
 
@@ -41,7 +45,7 @@ extension BluetoothManager: CBCentralManagerDelegate {
         // start scanning for peripherals
         centralManager.scanForPeripherals(
             withServices: [
-                Constants.BluetoothDiscoveryServiceID
+                Constants.LocationDiscoveryServiceID
             ],
             options: [
                 CBCentralManagerScanOptionAllowDuplicatesKey: false
@@ -63,6 +67,19 @@ extension BluetoothManager: CBCentralManagerDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.updateDeviceList(with: device)
         }
+        
+        centralManager.connect(peripheral)
+    }
+    
+    // called upon connecting to a peripheral
+    func centralManager(
+        _ central: CBCentralManager,
+        didConnect peripheral: CBPeripheral
+    ) {
+        peripheral.delegate = self
+        peripheral.discoverServices([
+            Constants.LocationDiscoveryServiceID
+        ])
     }
     
     // if a new device is discovered by the central manager, update the visible list
@@ -84,29 +101,66 @@ extension BluetoothManager: CBCentralManagerDelegate {
     }
 }
 
-extension BluetoothManager: CBPeripheralManagerDelegate {
-    // called when the peripheral state changes
-    func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        guard peripheral.state == .poweredOn else { return }
+extension BluetoothManager: CBPeripheralDelegate {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didDiscoverServices error: Error?
+    ) {
+        if let error = error {
+            print("Unable to discover services: \(error.localizedDescription)")
+            cleanup(peripheral: peripheral)
+            return
+        }
         
-        // start broadcasting this device as a peripheral
-        startBroadcasting()
+        peripheral.services?.forEach { service in
+            guard service.uuid == Constants.LocationDiscoveryServiceID else { return }
+            
+            peripheral.discoverCharacteristics(
+                characteristics,
+                for: service
+            )
+        }
     }
     
-    // start broadcasting (or re-broadcasting) as a peipheral
-    fileprivate func startBroadcasting() {
-        guard peripheralManager.state == .poweredOn else { return }
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didDiscoverCharacteristicsFor service: CBService,
+        error: Error?
+    ) {
+        if let error = error {
+            print("Unable to discover characteristics: \(error.localizedDescription)")
+            cleanup(peripheral: peripheral)
+            return
+        }
         
-        // stop broadcasting if we're already are
-        if peripheralManager.isAdvertising { peripheralManager.stopAdvertising() }
+        service.characteristics?.forEach { characteristic in
+            guard characteristics.contains(characteristic.uuid) else { return }
+            
+            peripheral.readValue(for: characteristic)
+        }
+    }
+    
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didUpdateValueFor characteristic: CBCharacteristic,
+        error: Error?
+    ) {
+        if let error = error {
+            print("Unable to read characteristic: \(error.localizedDescription)")
+            cleanup(peripheral: peripheral)
+            return
+        }
         
-        // start broadcasting
-        peripheralManager.startAdvertising(
-            [
-                CBAdvertisementDataServiceUUIDsKey: [
-                    Constants.BluetoothDiscoveryServiceID
-                ]
-            ]
-        )
+        guard characteristics.contains(characteristic.uuid) else { return }
+        
+        guard let data = characteristic.value else { return }
+        
+        let value = data.withUnsafeBytes { $0.load(as: Double.self) }
+        
+        print("Read value: \(value)")
+    }
+    
+    private func cleanup(peripheral: CBPeripheral) {
+        centralManager.cancelPeripheralConnection(peripheral)
     }
 }
