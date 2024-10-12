@@ -26,7 +26,9 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
         switch peripheral.state {
         case .poweredOn:
             // TODO: Improve handling case
-            broadcastEnabled = true
+            DispatchQueue.main.async {
+                self.broadcastEnabled = true
+            }
             print("SOSDiscoverer: poweredOn")
         case .poweredOff, .resetting, .unknown:
             // TODO: Improve handling cases
