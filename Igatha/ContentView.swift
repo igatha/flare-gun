@@ -9,13 +9,20 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var sosBeacon: SOSBeacon
+    @StateObject private var sirenPlayer: SirenPlayer
+    
     @StateObject private var incidentDetector: IncidentDetector
     
     @State private var showingAlert = false
     
+    @State private var isAlerting = false
+    
     init() {
         let sosBeacon = SOSBeacon()
         _sosBeacon = StateObject(wrappedValue: sosBeacon)
+        
+        let sirenPlayer = SirenPlayer()
+        _sirenPlayer = StateObject(wrappedValue: sirenPlayer)
         
         let incidentDetector = IncidentDetector(
             accelerationThreshold: Constants.SensorAccelerationThreshold,
@@ -37,8 +44,16 @@ struct ContentView: View {
             
             // Start broadcasting button
             Button(action: {
-                // Start broadcasting
-                sosBeacon.startBroadcasting()
+                if isAlerting {
+                    sosBeacon.stopBroadcasting()
+                    sirenPlayer.stopSiren()
+                    isAlerting = false
+                } else {
+                    // Start broadcasting
+                    sosBeacon.startBroadcasting()
+                    sirenPlayer.startSiren()
+                    isAlerting = true
+                }
             }) {
                 Text("SOS")
                     .padding()
@@ -60,6 +75,9 @@ struct ContentView: View {
         }
         .onDisappear {
             incidentDetector.stopDetection()
+            
+            sosBeacon.stopBroadcasting()
+            sirenPlayer.stopSiren()
         }
         .onReceive(incidentDetector.$incidentDetected) { detected in
             if detected {
@@ -76,7 +94,8 @@ struct ContentView: View {
                 secondaryButton: .destructive(Text("Need Help")) {
                     // start emergency services
                     sosBeacon.startBroadcasting()
-                    // optionally start siren or other actions
+                    sirenPlayer.startSiren()
+                    // optionally other actions
                 }
             )
         }

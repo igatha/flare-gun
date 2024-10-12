@@ -288,6 +288,7 @@
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Used to broadcast SOS messages during emergencies.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Used to access location during emergencies while app is in the background.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to access location during emergencies while app is in use.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "Used to detect incidents and trigger SOS response.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -322,6 +323,7 @@
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Used to broadcast SOS messages during emergencies.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Used to access location during emergencies while app is in the background.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to access location during emergencies while app is in use.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "Used to detect incidents and trigger SOS response.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
