@@ -16,6 +16,7 @@ struct ContentView: View {
     @StateObject private var incidentDetector: IncidentDetector
     
     @State private var activeAlert: ActiveAlert?
+    @State private var alertResponseTimer: Timer?
     
     @State private var selectedDevice: Device? = nil
     
@@ -55,9 +56,7 @@ struct ContentView: View {
             // sos button
             Button(action: {
                 if sirenPlayer.isPlaying || sosBeacon.isBroadcasting {
-                    // stop SOS
-                    sosBeacon.stopBroadcasting()
-                    sirenPlayer.stopSiren()
+                    stopSOS()
                 } else {
                     // show confirmation alert
                     activeAlert = .sosConfirmation
@@ -91,28 +90,19 @@ struct ContentView: View {
                         title: Text("Are you sure?"),
                         message: Text("This will broadcast your location and start a loud siren."),
                         primaryButton: .destructive(Text("Yes")) {
-                            print("User confirmed SOS")
-                            // start broadcasting and siren
-                            sosBeacon.startBroadcasting()
-                            sirenPlayer.startSiren()
+                            triggerSOS()
                         },
-                        secondaryButton: .cancel {
-                            print("User canceled SOS")
-                        }
+                        secondaryButton: .cancel()
                     )
                 case .incidentDetected:
                     return Alert(
                         title: Text("Incident Detected"),
                         message: Text("Are you okay?"),
                         primaryButton: .default(Text("I'm Okay")) {
-                            print("User is okay")
-                            // User is okay, no action needed
+                            userResponded()
                         },
                         secondaryButton: .destructive(Text("Need Help")) {
-                            print("User needs help, starting SOS")
-                            // Start emergency services
-                            sosBeacon.startBroadcasting()
-                            sirenPlayer.startSiren()
+                            triggerSOS()
                         }
                     )
                 }
@@ -125,16 +115,14 @@ struct ContentView: View {
         .onAppear {
             // start incident detection and sos discovery
             incidentDetector.startDetection()
-            
-            // TODO: proximityScanner.startScanning()
+            proximityScanner.startScanning()
         }
         .onDisappear {
             // stop all services
             sirenPlayer.stopSiren()
             sosBeacon.stopBroadcasting()
             
-            // TODO: proximityScanner.stopScanning()
-            
+            proximityScanner.stopScanning()
             incidentDetector.stopDetection()
         }
         .onReceive(
@@ -143,8 +131,43 @@ struct ContentView: View {
             guard detected else { return }
             
             activeAlert = .incidentDetected
+            startAlertResponseTimer()
+            
             incidentDetector.incidentDetected = false
         }
+    }
+    
+    private func startAlertResponseTimer() {
+        // invalidate any existing timer
+        alertResponseTimer?.invalidate()
+        
+        alertResponseTimer = Timer.scheduledTimer(
+            withTimeInterval: Constants.IncidentResponseGracePeriod,
+            repeats: false
+        ) { _ in
+            // trigger SOS if user doesn't respond in time
+            triggerSOS()
+        }
+    }
+
+    private func userResponded() {
+        // stop the response timer if user responds
+        alertResponseTimer?.invalidate()
+        alertResponseTimer = nil
+    }
+
+    private func triggerSOS() {
+        sosBeacon.startBroadcasting()
+        sirenPlayer.startSiren()
+        
+        print("ContentView: started SOS")
+    }
+    
+    private func stopSOS() {
+        sosBeacon.stopBroadcasting()
+        sirenPlayer.stopSiren()
+        
+        print("ContentView: stopped SOS")
     }
 }
 

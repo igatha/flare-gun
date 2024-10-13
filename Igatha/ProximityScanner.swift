@@ -54,6 +54,8 @@ extension ProximityScanner: CBCentralManagerDelegate {
     }
     
     func startScanning() {
+        guard centralManager.state == .poweredOn else { return }
+        
         // start scanning for peripherals
         centralManager.scanForPeripherals(
             withServices: [
