@@ -11,6 +11,8 @@ class SirenPlayer: ObservableObject {
     private var audioEngine: AVAudioEngine?
     private var playerNode: AVAudioPlayerNode?
     
+    @Published public private(set) var isPlaying = false
+    
     func startSiren() {
         // stop any existing siren
         stopSiren()
@@ -56,6 +58,7 @@ class SirenPlayer: ObservableObject {
             try audioSession.setActive(true)
         } catch {
             print("SirenPlayer: error configuring audio session: \(error)")
+            return
         }
         
         let buffer = createSirenBuffer(format: audioFormat)
@@ -73,6 +76,11 @@ class SirenPlayer: ObservableObject {
             playerNode.play()
         } catch {
             print("SirenPlayer: error starting audio engine: \(error)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            self.isPlaying = true
         }
         
         print("SirenPlayer: started siren")
@@ -91,6 +99,11 @@ class SirenPlayer: ObservableObject {
             try audioSession.setActive(false)
         } catch {
             print("SirenPlayer: error deactivating audio session: \(error)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            self.isPlaying = false
         }
         
         print("SirenPlayer: stopped siren")

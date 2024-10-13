@@ -15,7 +15,7 @@ class IncidentDetector: SensorDelegate, ObservableObject {
     private let gyroscopeSensor: GyroscopeSensor
     private let barometerSensor: BarometerSensor
     
-    @Published var incidentDetected: Bool = false
+    @Published public var incidentDetected = false
     
     init(
         accelerationThreshold: Double,

@@ -8,16 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var proximityScanner: ProximityScanner
+    
     @StateObject private var sosBeacon: SOSBeacon
     @StateObject private var sirenPlayer: SirenPlayer
     
     @StateObject private var incidentDetector: IncidentDetector
     
-    @State private var showingAlert = false
+    @State private var activeAlert: ActiveAlert?
     
-    @State private var isAlerting = false
+    @State private var selectedDevice: Device? = nil
     
     init() {
+        let proximityScanner = ProximityScanner()
+        _proximityScanner = StateObject(wrappedValue: proximityScanner)
+        
         let sosBeacon = SOSBeacon()
         _sosBeacon = StateObject(wrappedValue: sosBeacon)
         
@@ -35,70 +40,119 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Text("Hello, world!")
-                .padding()
+            // list of devices
+            DeviceListView(
+                devices: proximityScanner.devices,
+                onDeviceSelect: { device in
+                    // open sheet with selected device
+                    selectedDevice = device
+                }
+            )
             
-            Text("Broadcast enabled: \(sosBeacon.broadcastEnabled.description)")
+            Spacer()
             
-            Text("Incident detected: \(incidentDetector.incidentDetected.description)")
-            
-            // Start broadcasting button
+            // sos button
             Button(action: {
-                if isAlerting {
+                if sirenPlayer.isPlaying || sosBeacon.isBroadcasting {
+                    // stop SOS
                     sosBeacon.stopBroadcasting()
                     sirenPlayer.stopSiren()
-                    isAlerting = false
                 } else {
-                    // Start broadcasting
-                    sosBeacon.startBroadcasting()
-                    sirenPlayer.startSiren()
-                    isAlerting = true
+                    // show confirmation alert
+                    activeAlert = .sosConfirmation
                 }
             }) {
-                Text("SOS")
-                    .padding()
-                    .background(
-                        sosBeacon.broadcastEnabled
-                        ? Color.red
-                        : Color.gray
-                    )
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
+                Text(
+                    sirenPlayer.isPlaying
+                    && sosBeacon.isBroadcasting
+                    ? "Stop SOS"
+                    : "Send SOS"
+                )
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(
+                    sirenPlayer.isPlaying
+                    && sosBeacon.isBroadcasting
+                    ? Color.gray
+                    : Color.red
+                )
+                .cornerRadius(8)
             }
-            .disabled(
-                !sosBeacon.broadcastEnabled
-            )
-            .padding()
+            .disabled(!sosBeacon.broadcastEnabled)
+            .padding([.horizontal, .bottom])
+            .animation(.easeInOut, value: sirenPlayer.isPlaying && sosBeacon.isBroadcasting)
+            .alert(item: $activeAlert) { alertType in
+                switch alertType {
+                case .sosConfirmation:
+                    return Alert(
+                        title: Text("Are you sure?"),
+                        message: Text("This will broadcast your location and start a loud siren."),
+                        primaryButton: .destructive(Text("Yes")) {
+                            print("User confirmed SOS")
+                            // start broadcasting and siren
+                            sosBeacon.startBroadcasting()
+                            sirenPlayer.startSiren()
+                        },
+                        secondaryButton: .cancel {
+                            print("User canceled SOS")
+                        }
+                    )
+                case .incidentDetected:
+                    return Alert(
+                        title: Text("Incident Detected"),
+                        message: Text("Are you okay?"),
+                        primaryButton: .default(Text("I'm Okay")) {
+                            print("User is okay")
+                            // User is okay, no action needed
+                        },
+                        secondaryButton: .destructive(Text("Need Help")) {
+                            print("User needs help, starting SOS")
+                            // Start emergency services
+                            sosBeacon.startBroadcasting()
+                            sirenPlayer.startSiren()
+                        }
+                    )
+                }
+            }
+        }
+        .sheet(item: $selectedDevice) { device in
+            // show the device details
+            DeviceDetailView(device: device)
         }
         .onAppear {
+            // start incident detection and sos discovery
             incidentDetector.startDetection()
+            
+            // TODO: proximityScanner.startScanning()
         }
         .onDisappear {
-            incidentDetector.stopDetection()
-            
-            sosBeacon.stopBroadcasting()
+            // stop all services
             sirenPlayer.stopSiren()
+            sosBeacon.stopBroadcasting()
+            
+            // TODO: proximityScanner.stopScanning()
+            
+            incidentDetector.stopDetection()
         }
-        .onReceive(incidentDetector.$incidentDetected) { detected in
-            if detected {
-                showingAlert = true
-            }
+        .onReceive(
+            incidentDetector.$incidentDetected
+        ) { detected in
+            guard detected else { return }
+            
+            activeAlert = .incidentDetected
+            incidentDetector.incidentDetected = false
         }
-        .alert(isPresented: $showingAlert) {
-            Alert(
-                title: Text("Incident Detected"),
-                message: Text("Are you okay?"),
-                primaryButton: .default(Text("I'm Okay")) {
-                    // User is okay, no action needed
-                },
-                secondaryButton: .destructive(Text("Need Help")) {
-                    // start emergency services
-                    sosBeacon.startBroadcasting()
-                    sirenPlayer.startSiren()
-                    // optionally other actions
-                }
-            )
-        }
+    }
+}
+
+enum ActiveAlert: Identifiable {
+    case sosConfirmation
+    case incidentDetected
+    
+    var id: Int {
+        hashValue
     }
 }
 

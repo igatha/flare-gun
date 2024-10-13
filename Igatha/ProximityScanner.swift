@@ -8,9 +8,9 @@
 import Foundation
 import CoreBluetooth
 
-class SOSDiscoverer: NSObject {
+class ProximityScanner: NSObject, ObservableObject {
     // list of devices that have been discovered
-    private(set) public var devices = [Device]()
+    @Published public private(set) var devices = [Device]()
     // closure that is called whenever the list of devices is updated
     public var devicesListUpdatedHandler: (() -> Void)?
     
@@ -31,7 +31,7 @@ class SOSDiscoverer: NSObject {
     }
 }
 
-extension SOSDiscoverer: CBCentralManagerDelegate {
+extension ProximityScanner: CBCentralManagerDelegate {
     // called when the central state changes
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         guard central.state == .poweredOn else { return }
@@ -55,7 +55,10 @@ extension SOSDiscoverer: CBCentralManagerDelegate {
         rssi RSSI: NSNumber
     ) {
         // initialize the device
-        let device = Device(peripheral: peripheral)
+        let device = Device(
+            peripheral: peripheral,
+            rssi: RSSI.doubleValue
+        )
         
         // add or update this object to the visible list
         DispatchQueue.main.async { [weak self] in
@@ -65,7 +68,7 @@ extension SOSDiscoverer: CBCentralManagerDelegate {
     
     // if a new device is discovered by the central manager, update the visible list
     fileprivate func updateDeviceList(with device: Device) {
-        print("Discovered device \(device.id).")
+        print("ProximityScanner: discovered device \(device.id).")
         
         // if a device already exists in the list, replace it with this new device
         if let index = devices.firstIndex(where: { $0.id == device.id }) {

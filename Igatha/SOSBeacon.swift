@@ -12,6 +12,7 @@ class SOSBeacon: NSObject, ObservableObject {
     private var peripheralManager: CBPeripheralManager!
     
     @Published public private(set) var broadcastEnabled = false
+    @Published public private(set) var isBroadcasting = false
     
     override init() {
         super.init()
@@ -29,20 +30,20 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
             DispatchQueue.main.async {
                 self.broadcastEnabled = true
             }
-            print("SOSDiscoverer: poweredOn")
+            print("SOSBeacon: poweredOn")
         case .poweredOff, .resetting, .unknown:
             // TODO: Improve handling cases
             stopBroadcasting()
-            print("SOSDiscoverer: poweredOff | resetting | unknown")
+            print("SOSBeacon: poweredOff | resetting | unknown")
         case .unauthorized:
             // TODO: Improve handling case
             stopBroadcasting()
-            print("SOSDiscoverer: unauthorized")
+            print("SOSBeacon: unauthorized")
         case .unsupported:
             // TODO: Handle case
-            print("SOSDiscoverer: unsupported")
+            print("SOSBeacon: unsupported")
         @unknown default:
-            print("SOSDiscoverer: unknown")
+            print("SOSBeacon: unknown")
         }
     }
     
@@ -69,13 +70,23 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
             ]
         )
         
-        print("SOSBeacon: broadcasting")
+        DispatchQueue.main.async {
+            self.isBroadcasting = true
+        }
+        
+        print("SOSBeacon: started broadcast")
     }
     
     // stop broadcasting as a peripheral
     public func stopBroadcasting() {
         peripheralManager.stopAdvertising()
         peripheralManager.removeAllServices()
+        
+        DispatchQueue.main.async {
+            self.isBroadcasting = false
+        }
+        
+        print("SOSBeacon: stopped broadcast")
     }
     
     // creates sos beacon service
