@@ -23,7 +23,10 @@ class BarometerSensor {
     }
     
     func startUpdates() {
-        guard CMAltimeter.isRelativeAltitudeAvailable() else { return }
+        guard CMAltimeter.isRelativeAltitudeAvailable() else {
+            print("BarometerSensor: not available")
+            return
+        }
         
         altimeter.startRelativeAltitudeUpdates(
             to: .main
@@ -50,10 +53,14 @@ class BarometerSensor {
                 eventTime: Date()
             )
         }
+        
+        print("BarometerSensor: started sensor")
     }
     
     func stopUpdates() {
         altimeter.stopRelativeAltitudeUpdates()
+        
+        print("BarometerSensor: stopped sensor")
     }
 }
 

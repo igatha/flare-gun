@@ -25,7 +25,10 @@ class GyroscopeSensor {
     }
     
     func startUpdates() {
-        guard motionManager.isGyroAvailable else { return }
+        guard motionManager.isGyroAvailable else {
+            print("GyroscopeSensor: not available")
+            return
+        }
         
         motionManager.gyroUpdateInterval = updateInterval
         
@@ -52,10 +55,14 @@ class GyroscopeSensor {
                 eventTime: Date()
             )
         }
+        
+        print("GyroscopeSensor: started sensor")
     }
     
     func stopUpdates() {
         motionManager.stopGyroUpdates()
+        
+        print("GyroscopeSensor: stopped sensor")
     }
 }
 

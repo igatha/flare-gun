@@ -25,7 +25,10 @@ class AccelerometerSensor {
     }
     
     func startUpdates() {
-        guard motionManager.isAccelerometerAvailable else { return }
+        guard motionManager.isAccelerometerAvailable else {
+            print("AccelerometerSensor: not available")
+            return
+        }
         
         motionManager.accelerometerUpdateInterval = threshold
         
@@ -52,10 +55,14 @@ class AccelerometerSensor {
                 eventTime: Date()
             )
         }
+        
+        print("AccelerometerSensor: started sensor")
     }
     
     func stopUpdates() {
         motionManager.stopAccelerometerUpdates()
+        
+        print("AccelerometerSensor: stopped sensor")
     }
 }
 
