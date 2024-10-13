@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DeviceListView: View {
-    let devices: [Device]
+    let devices: [String: Device]
     
     var onDeviceSelect: (Device) -> Void
     
@@ -23,61 +23,59 @@ struct DeviceListView: View {
                     .padding()
                 } else {
                     ForEach(sortedDevices) { device in
-                        HStack(spacing: 16) {
-                            // device icon
-                            Image(systemName: "person.circle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 40, height: 40)
-                                .foregroundColor(
-                                    getColor(for: device.estimateDistance())
-                                )
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                // device short name
-                                Text(device.shortName)
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-                                
-                                // device distance
-                                Text(
-                                    "\(String(format: "%.2f", device.estimateDistance())) meters away"
-                                )
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
+                        DeviceRowView(device: device)
+                            .onTapGesture {
+                                // trigger the closure when tapped
+                                onDeviceSelect(device)
                             }
-                            
-                            Spacer()
-                        }
-                        .padding(.vertical, 4)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            // trigger the closure when tapped
-                            onDeviceSelect(device)
-                        }
                     }
                 }
             } header: {
                 Text("People Seeking Help")
+                    .padding(.vertical)
+            } footer: {
+                Text("Note: Distance is approximate and varies due to signal fluctuations. It is for general guidance only.")
+                    .padding(.vertical)
             }
         }
         .listStyle(.automatic)
     }
     
     var sortedDevices: [Device] {
-        devices.sorted { $0.estimateDistance() < $1.estimateDistance() }
+        devices.values.sorted { $0.estimateDistance() < $1.estimateDistance() }
     }
-    
-    func getColor(for distance: Double) -> Color {
-        switch distance {
-        case 0...10:
-            return .green
-        case 11...20:
-            return .yellow
-        case 21...50:
-            return .orange
-        default:
-            return .red
-        }
+}
+
+struct DeviceListView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Creating mock devices
+        let mockDevices = [
+            Device(
+                id: UUID(),
+                rssi: -40
+            ),
+            Device(
+                id: UUID(),
+                rssi: -60
+            ),
+            Device(
+                id: UUID(),
+                rssi: -75
+            ),
+            Device(
+                id: UUID(),
+                rssi: -85
+            )
+        ]
+        
+        return DeviceListView(
+            devices: [
+                mockDevices[0].id: mockDevices[0],
+                mockDevices[1].id: mockDevices[1],
+                mockDevices[2].id: mockDevices[2],
+                mockDevices[3].id: mockDevices[3],
+            ],
+            onDeviceSelect: {_ in }
+        )
     }
 }

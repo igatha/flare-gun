@@ -9,10 +9,8 @@ import Foundation
 import CoreBluetooth
 
 class ProximityScanner: NSObject, ObservableObject {
-    // list of devices that have been discovered
-    @Published public private(set) var devices = [Device]()
-    // closure that is called whenever the list of devices is updated
-    public var devicesListUpdatedHandler: (() -> Void)?
+    // map of devices that have been discovered
+    @Published public private(set) var devices: [String: Device] = [:]
     
     private var centralManager: CBCentralManager!
     
@@ -34,17 +32,46 @@ class ProximityScanner: NSObject, ObservableObject {
 extension ProximityScanner: CBCentralManagerDelegate {
     // called when the central state changes
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        guard central.state == .poweredOn else { return }
-        
+        switch central.state {
+        case .poweredOn:
+            // TODO: Improve handling case
+            print("ProximityScanner: poweredOn")
+            startScanning()
+        case .poweredOff, .resetting, .unknown:
+            // TODO: Improve handling cases
+            stopScanning()
+            print("ProximityScanner: poweredOff | resetting | unknown")
+        case .unauthorized:
+            // TODO: Improve handling case
+            stopScanning()
+            print("ProximityScanner: unauthorized")
+        case .unsupported:
+            // TODO: Handle case
+            print("ProximityScanner: unsupported")
+        @unknown default:
+            print("ProximityScanner: unknown")
+        }
+    }
+    
+    func startScanning() {
         // start scanning for peripherals
         centralManager.scanForPeripherals(
             withServices: [
                 Constants.SOSBeaconServiceID
             ],
             options: [
-                CBCentralManagerScanOptionAllowDuplicatesKey: false
+                // allowing duplicates updates the rssi value
+                CBCentralManagerScanOptionAllowDuplicatesKey: true
             ]
         )
+        
+        print("ProximityScanner: started scan")
+    }
+    
+    func stopScanning() {
+        centralManager.stopScan()
+        
+        print("ProximityScanner: stopped scan")
     }
     
     // called when a peripheral is detected
@@ -56,31 +83,27 @@ extension ProximityScanner: CBCentralManagerDelegate {
     ) {
         // initialize the device
         let device = Device(
-            peripheral: peripheral,
-            rssi: RSSI.doubleValue
+            id: peripheral.identifier,
+            rssi: RSSI.doubleValue,
+            lastSeen: Date()
         )
         
-        // add or update this object to the visible list
-        DispatchQueue.main.async { [weak self] in
-            self?.updateDeviceList(with: device)
+        // add or update the device in the map
+        DispatchQueue.main.async {
+            self.trackDevice(device)
         }
     }
     
-    // if a new device is discovered by the central manager, update the visible list
-    fileprivate func updateDeviceList(with device: Device) {
-        print("ProximityScanner: discovered device \(device.id).")
-        
-        // if a device already exists in the list, replace it with this new device
-        if let index = devices.firstIndex(where: { $0.id == device.id }) {
-            guard devices[index].id != device.id else { return }
-            devices.remove(at: index)
-            devices.insert(device, at: index)
-            devicesListUpdatedHandler?()
+    private func trackDevice(
+        _ device: Device
+    ) {
+        if !self.devices.keys.contains(device.id) {
+            self.devices[device.id] = device
             return
         }
         
-        // if this item didn't exist in the list, append it to the end
-        devices.append(device)
-        devicesListUpdatedHandler?()
+        self.devices[device.id]?.update(
+            rssi: device.rssi
+        )
     }
 }

@@ -29,4 +29,7 @@ struct Constants {
     // time window for temporally correlating sensor readings
     // if all thresholds exceed in 1.5s then we have an incident
     static let IncidentTemporalCorrelationTimeWindow: Double = 1.5
+    
+    // percentage of how much a new value should affect the old value
+    static let RSSIExponentialMovingAverageSmoothingFactor: Double = 0.18
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DeviceDetailView: View {
-    let device: Device
+    @ObservedObject var device: Device
     
     // environment mode to dismiss the sheet
     @Environment(\.presentationMode) var presentationMode
@@ -36,9 +36,14 @@ struct DeviceDetailView: View {
                 
                 // device distance
                 Text(
-                    "\(String(format: "%.2f", device.estimateDistance())) meters away"
+                    "\(String(format: "%.1f", device.estimateDistance())) meters away"
                 )
-                .font(.headline)
+                .font(
+                    .system(
+                        .headline,
+                        design: .monospaced
+                    )
+                )
                 .foregroundColor(.primary)
                 
                 Spacer()
@@ -67,5 +72,21 @@ struct DeviceDetailView: View {
         default:
             return .red
         }
+    }
+}
+
+struct DeviceDetailView_Previews: PreviewProvider {
+    static var previews: some View {
+        let mockDevice = Device(
+            id: UUID(),
+            rssi: -40
+        )
+        
+        return DeviceDetailView(
+            device: mockDevice
+        )
+        .previewLayout(
+            .sizeThatFits
+        )
     }
 }

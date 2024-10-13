@@ -48,6 +48,7 @@ struct ContentView: View {
                     selectedDevice = device
                 }
             )
+            .padding(.bottom, 8)
             
             Spacer()
             

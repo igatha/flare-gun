@@ -15,44 +15,55 @@ extension UUID {
     }
 }
 
-struct Device: Identifiable {
-    let peripheral: CBPeripheral
-    
-    let rssi: Double
-    
-    let lastSeen: Date
-    
+class Device: Identifiable, ObservableObject {
     let id: String
     let shortName: String
     
+    @Published var rssi: Double
+    @Published var lastSeen: Date
+    
     init(
-        peripheral: CBPeripheral,
+        id: UUID,
         rssi: Double,
-        lastSeen: Date = .now
+        lastSeen: Date = Date()
     ) {
-        self.peripheral = peripheral
+        self.id = id.uuidString
+        self.shortName = id.shortName
         
         self.rssi = rssi
-        
         self.lastSeen = lastSeen
+    }
+    
+    func update(
+        rssi: Double,
+        lastSeen: Date = Date()
+    ) {
+        let oldRSSI = self.rssi
+        let newRSSI = rssi
         
-        self.id = peripheral.identifier.uuidString
-        self.shortName = peripheral.identifier.shortName
+        // smoothing factor
+        let alpha = Constants.RSSIExponentialMovingAverageSmoothingFactor
+        
+        // smoothen the RSSI with exponential moving average
+        let smoothedRSSI = alpha * newRSSI + (1 - alpha) * oldRSSI
+        
+        self.rssi = smoothedRSSI
+        self.lastSeen = lastSeen
     }
     
     func estimateDistance(
         using pathLossExponent: PathLossExponent = .urban
     ) -> Double {
-        // approximate RSSI at 1 meter
-        let txPower: Double = -59.0
+        // 1 meter ~= -59.0 RSSI
+        let txPower = -59.0
 
         // path-loss exponent
         let n: Double = pathLossExponent.value
         
         let distance = pow(10.0, (txPower - rssi) / (10.0 * n))
         
-        // round to the nearest hundredth for simplicity
-        return (distance * 100.0).rounded() / 100.0
+        // round for simplicity simplicity
+        return (distance * 1000.0).rounded() / 1000.0
     }
 }
 
