@@ -1,5 +1,5 @@
 //
-//  HelpBroadcaster.swift
+//  SOSBeacon.swift
 //  Igatha
 //
 //  Created by Nizar Mahmoud on 11/10/2024.
@@ -8,16 +8,24 @@
 import Foundation
 import CoreBluetooth
 
-class SOSBeacon: NSObject, ObservableObject {
+class SOSBeacon: NSObject {
+    weak var delegate: SOSBeaconDelegate?
+    
     private var peripheralManager: CBPeripheralManager!
     
-    @Published public private(set) var broadcastEnabled = false
-    @Published public private(set) var isBroadcasting = false
+    public var isActive: Bool {
+        return peripheralManager.isAdvertising
+    }
+    public var isAvailable: Bool = false
     
     override init() {
         super.init()
         
         self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+    }
+    
+    deinit {
+        stopBroadcasting()
     }
 }
 
@@ -26,36 +34,27 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         switch peripheral.state {
         case .poweredOn:
-            // TODO: Improve handling case
-            DispatchQueue.main.async {
-                self.broadcastEnabled = true
-            }
-            print("SOSBeacon: poweredOn")
-        case .poweredOff, .resetting, .unknown:
-            // TODO: Improve handling cases
+            isAvailable = true
+            delegate?.beaconAvailabilityUpdate(true)
+            
+        case .poweredOff, .resetting, .unauthorized, .unsupported, .unknown:
+            isAvailable = false
+            delegate?.beaconAvailabilityUpdate(false)
             stopBroadcasting()
-            print("SOSBeacon: poweredOff | resetting | unknown")
-        case .unauthorized:
-            // TODO: Improve handling case
-            stopBroadcasting()
-            print("SOSBeacon: unauthorized")
-        case .unsupported:
-            // TODO: Handle case
-            print("SOSBeacon: unsupported")
+            
         @unknown default:
-            print("SOSBeacon: unknown")
+            isAvailable = false
+            delegate?.beaconAvailabilityUpdate(false)
+            stopBroadcasting()
         }
     }
     
     // start broadcasting (or re-broadcasting) as a peipheral
     public func startBroadcasting() {
-        // stop broadcasting if we're already are
-        if peripheralManager.isAdvertising {
-            stopBroadcasting()
-        }
-        
-        // ensure we're ready to broadcast
-        guard peripheralManager.state == .poweredOn else { return }
+        guard
+            isAvailable
+                && !isActive
+        else { return }
         
         // setup sos beacon service
         let sosBeaconService = setupSOSBeaconService()
@@ -70,11 +69,7 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
             ]
         )
         
-        DispatchQueue.main.async {
-            self.isBroadcasting = true
-        }
-        
-        print("SOSBeacon: started broadcast")
+        delegate?.beaconStarted()
     }
     
     // stop broadcasting as a peripheral
@@ -82,11 +77,7 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
         peripheralManager.stopAdvertising()
         peripheralManager.removeAllServices()
         
-        DispatchQueue.main.async {
-            self.isBroadcasting = false
-        }
-        
-        print("SOSBeacon: stopped broadcast")
+        delegate?.beaconStopped()
     }
     
     // creates sos beacon service
@@ -98,4 +89,11 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
         
         return service
     }
+}
+
+protocol SOSBeaconDelegate: AnyObject {
+    func beaconStarted()
+    func beaconStopped()
+    
+    func beaconAvailabilityUpdate(_ isAvailable: Bool)
 }

@@ -13,6 +13,22 @@ enum SensorType {
     case barometer
 }
 
+public protocol AnySensor: AnyObject {
+    var isAvailable: Bool { get }
+    
+    func startUpdates()
+    func stopUpdates()
+}
+
+protocol Sensor: AnySensor {
+    var delegate: SensorDelegate? { get }
+    
+    associatedtype T
+    var sensor: T { get }
+    
+    var threshold: Double { get }
+}
+
 protocol SensorDelegate: AnyObject {
-    func sensorDidExceedThreshold(sensorType: SensorType, eventTime: Date)
+    func sensorExceededThreshold(sensorType: SensorType, eventTime: Date)
 }

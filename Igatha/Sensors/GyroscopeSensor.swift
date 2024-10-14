@@ -8,13 +8,18 @@
 import Foundation
 import CoreMotion
 
-class GyroscopeSensor {
+class GyroscopeSensor: Sensor {
     weak var delegate: SensorDelegate?
     
-    private let motionManager = CMMotionManager()
+    typealias T = CMMotionManager
+    internal let sensor: CMMotionManager
     
-    private let threshold: Double
+    internal let threshold: Double
     private let updateInterval: TimeInterval
+    
+    public var isAvailable: Bool {
+        return sensor.isGyroAvailable
+    }
     
     init(
         threshold: Double,
@@ -22,17 +27,15 @@ class GyroscopeSensor {
     ) {
         self.threshold = threshold
         self.updateInterval = updateInterval
+        
+        sensor = CMMotionManager()
+        sensor.gyroUpdateInterval = updateInterval
     }
     
     func startUpdates() {
-        guard motionManager.isGyroAvailable else {
-            print("GyroscopeSensor: not available")
-            return
-        }
+        guard isAvailable else { return }
         
-        motionManager.gyroUpdateInterval = updateInterval
-        
-        motionManager.startGyroUpdates(
+        sensor.startGyroUpdates(
             to: .main
         ) { [weak self] data, error in
             guard
@@ -50,19 +53,15 @@ class GyroscopeSensor {
             
             guard totalRotationRate > self.threshold else { return }
             
-            self.delegate?.sensorDidExceedThreshold(
+            self.delegate?.sensorExceededThreshold(
                 sensorType: .gyroscope,
                 eventTime: Date()
             )
         }
-        
-        print("GyroscopeSensor: started sensor")
     }
     
     func stopUpdates() {
-        motionManager.stopGyroUpdates()
-        
-        print("GyroscopeSensor: stopped sensor")
+        sensor.stopGyroUpdates()
     }
 }
 

@@ -8,13 +8,18 @@
 import Foundation
 import CoreMotion
 
-class AccelerometerSensor {
+class AccelerometerSensor: Sensor {
     weak var delegate: SensorDelegate?
     
-    private let motionManager = CMMotionManager()
+    typealias T = CMMotionManager
+    internal let sensor: CMMotionManager
     
-    private let threshold: Double
+    internal let threshold: Double
     private let updateInterval: TimeInterval
+    
+    public var isAvailable: Bool {
+        return sensor.isAccelerometerAvailable
+    }
     
     init(
         threshold: Double,
@@ -22,17 +27,15 @@ class AccelerometerSensor {
     ) {
         self.threshold = threshold
         self.updateInterval = updateInterval
+        
+        sensor = CMMotionManager()
+        sensor.accelerometerUpdateInterval = threshold
     }
     
     func startUpdates() {
-        guard motionManager.isAccelerometerAvailable else {
-            print("AccelerometerSensor: not available")
-            return
-        }
+        guard isAvailable else { return }
         
-        motionManager.accelerometerUpdateInterval = threshold
-        
-        motionManager.startAccelerometerUpdates(
+        sensor.startAccelerometerUpdates(
             to: .main
         ) { [weak self] data, error in
             guard
@@ -50,19 +53,15 @@ class AccelerometerSensor {
             
             guard totalAcceleration > self.threshold else { return }
             
-            self.delegate?.sensorDidExceedThreshold(
+            self.delegate?.sensorExceededThreshold(
                 sensorType: .accelerometer,
                 eventTime: Date()
             )
         }
-        
-        print("AccelerometerSensor: started sensor")
     }
     
     func stopUpdates() {
-        motionManager.stopAccelerometerUpdates()
-        
-        print("AccelerometerSensor: stopped sensor")
+        sensor.stopAccelerometerUpdates()
     }
 }
 

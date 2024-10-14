@@ -8,42 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var proximityScanner: ProximityScanner
-    
-    @StateObject private var sosBeacon: SOSBeacon
-    @StateObject private var sirenPlayer: SirenPlayer
-    
-    @StateObject private var incidentDetector: IncidentDetector
-    
-    @State private var activeAlert: ActiveAlert?
-    @State private var alertResponseTimer: Timer?
+    @StateObject private var viewModel = ContentViewModel()
     
     @State private var selectedDevice: Device? = nil
-    
-    init() {
-        let proximityScanner = ProximityScanner()
-        _proximityScanner = StateObject(wrappedValue: proximityScanner)
-        
-        let sosBeacon = SOSBeacon()
-        _sosBeacon = StateObject(wrappedValue: sosBeacon)
-        
-        let sirenPlayer = SirenPlayer()
-        _sirenPlayer = StateObject(wrappedValue: sirenPlayer)
-        
-        let incidentDetector = IncidentDetector(
-            accelerationThreshold: Constants.SensorAccelerationThreshold,
-            rotationThreshold: Constants.SensorRotationThreshold,
-            pressureThreshold: Constants.SensorPressureThreshold,
-            eventTimeWindow: Constants.IncidentTemporalCorrelationTimeWindow
-        )
-        _incidentDetector = StateObject(wrappedValue: incidentDetector)
-    }
     
     var body: some View {
         VStack {
             // list of devices
             DeviceListView(
-                devices: proximityScanner.devices,
+                devices: viewModel.devices,
                 onDeviceSelect: { device in
                     // open sheet with selected device
                     selectedDevice = device
@@ -55,54 +28,67 @@ struct ContentView: View {
             
             // sos button
             Button(action: {
-                if sirenPlayer.isPlaying || sosBeacon.isBroadcasting {
-                    stopSOS()
+                if viewModel.isSOSActive {
+                    viewModel.stopSOS()
                 } else {
                     // show confirmation alert
-                    activeAlert = .sosConfirmation
+                    viewModel.activeAlert = .sosConfirmation
                 }
             }) {
                 Text(
-                    sirenPlayer.isPlaying
-                    && sosBeacon.isBroadcasting
-                    ? "Stop SOS"
-                    : "Send SOS"
+                    viewModel.isSOSAvailable
+                    ? viewModel.isSOSActive
+                        ? "Stop SOS"
+                        : "Send SOS"
+                    : "SOS Unavailable"
                 )
                 .font(.headline)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(
-                    sirenPlayer.isPlaying
-                    && sosBeacon.isBroadcasting
+                    viewModel.isSOSActive
                     ? Color.gray
                     : Color.red
                 )
+                .opacity(
+                    viewModel.isSOSAvailable
+                    ? 1
+                    : 0.75
+                )
                 .cornerRadius(8)
             }
-            .disabled(!sosBeacon.broadcastEnabled)
+            .disabled(!viewModel.isSOSAvailable)
             .padding([.horizontal, .bottom])
-            .animation(.easeInOut, value: sirenPlayer.isPlaying && sosBeacon.isBroadcasting)
-            .alert(item: $activeAlert) { alertType in
+            .animation(.easeInOut, value: viewModel.isSOSActive)
+            .alert(item: $viewModel.activeAlert) { alertType in
                 switch alertType {
                 case .sosConfirmation:
                     return Alert(
                         title: Text("Are you sure?"),
                         message: Text("This will broadcast your location and start a loud siren."),
                         primaryButton: .destructive(Text("Yes")) {
-                            triggerSOS()
+                            viewModel.startSOS()
+                            
+                            viewModel.activeAlert = nil
                         },
-                        secondaryButton: .cancel()
+                        secondaryButton: .cancel() {
+                            viewModel.activeAlert = nil
+                        }
                     )
                 case .incidentDetected:
                     return Alert(
                         title: Text("Incident Detected"),
                         message: Text("Are you okay?"),
                         primaryButton: .default(Text("I'm Okay")) {
-                            userResponded()
+                            viewModel.stopSOS()
+                            
+                            viewModel.activeAlert = nil
                         },
                         secondaryButton: .destructive(Text("Need Help")) {
-                            triggerSOS()
+                            viewModel.startSOS()
+                            
+                            viewModel.activeAlert = nil
                         }
                     )
                 }
@@ -112,62 +98,6 @@ struct ContentView: View {
             // show the device details
             DeviceDetailView(device: device)
         }
-        .onAppear {
-            // start incident detection and sos discovery
-            incidentDetector.startDetection()
-            proximityScanner.startScanning()
-        }
-        .onDisappear {
-            // stop all services
-            sirenPlayer.stopSiren()
-            sosBeacon.stopBroadcasting()
-            
-            proximityScanner.stopScanning()
-            incidentDetector.stopDetection()
-        }
-        .onReceive(
-            incidentDetector.$incidentDetected
-        ) { detected in
-            guard detected else { return }
-            
-            activeAlert = .incidentDetected
-            startAlertResponseTimer()
-            
-            incidentDetector.incidentDetected = false
-        }
-    }
-    
-    private func startAlertResponseTimer() {
-        // invalidate any existing timer
-        alertResponseTimer?.invalidate()
-        
-        alertResponseTimer = Timer.scheduledTimer(
-            withTimeInterval: Constants.IncidentResponseGracePeriod,
-            repeats: false
-        ) { _ in
-            // trigger SOS if user doesn't respond in time
-            triggerSOS()
-        }
-    }
-
-    private func userResponded() {
-        // stop the response timer if user responds
-        alertResponseTimer?.invalidate()
-        alertResponseTimer = nil
-    }
-
-    private func triggerSOS() {
-        sosBeacon.startBroadcasting()
-        sirenPlayer.startSiren()
-        
-        print("ContentView: started SOS")
-    }
-    
-    private func stopSOS() {
-        sosBeacon.stopBroadcasting()
-        sirenPlayer.stopSiren()
-        
-        print("ContentView: stopped SOS")
     }
 }
 

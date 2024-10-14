@@ -8,7 +8,10 @@
 import SwiftUI
 
 struct DeviceListView: View {
-    let devices: [String: Device]
+    let devices: [Device]
+    private var sortedDevices: [Device] {
+        devices.sorted { $0.estimateDistance() < $1.estimateDistance() }
+    }
     
     var onDeviceSelect: (Device) -> Void
     
@@ -40,10 +43,6 @@ struct DeviceListView: View {
         }
         .listStyle(.automatic)
     }
-    
-    var sortedDevices: [Device] {
-        devices.values.sorted { $0.estimateDistance() < $1.estimateDistance() }
-    }
 }
 
 struct DeviceListView_Previews: PreviewProvider {
@@ -69,12 +68,7 @@ struct DeviceListView_Previews: PreviewProvider {
         ]
         
         return DeviceListView(
-            devices: [
-                mockDevices[0].id: mockDevices[0],
-                mockDevices[1].id: mockDevices[1],
-                mockDevices[2].id: mockDevices[2],
-                mockDevices[3].id: mockDevices[3],
-            ],
+            devices: mockDevices,
             onDeviceSelect: {_ in }
         )
     }

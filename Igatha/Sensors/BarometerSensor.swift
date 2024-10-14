@@ -8,27 +8,31 @@
 import Foundation
 import CoreMotion
 
-class BarometerSensor {
+class BarometerSensor: Sensor {
     weak var delegate: SensorDelegate?
     
-    private let altimeter = CMAltimeter()
+    typealias T = CMAltimeter
+    internal let sensor: CMAltimeter
     
-    private let threshold: Double
+    internal let threshold: Double    
     private var initialPressure: Double?
+    
+    public var isAvailable: Bool {
+        return CMAltimeter.isRelativeAltitudeAvailable()
+    }
     
     init(
         threshold: Double
     ) {
         self.threshold = threshold
+        
+        sensor = CMAltimeter()
     }
     
     func startUpdates() {
-        guard CMAltimeter.isRelativeAltitudeAvailable() else {
-            print("BarometerSensor: not available")
-            return
-        }
+        guard isAvailable else { return }
         
-        altimeter.startRelativeAltitudeUpdates(
+        sensor.startRelativeAltitudeUpdates(
             to: .main
         ) { [weak self] data, error in
             guard
@@ -48,19 +52,15 @@ class BarometerSensor {
             
             guard pressureChange > self.threshold else { return }
             
-            self.delegate?.sensorDidExceedThreshold(
+            self.delegate?.sensorExceededThreshold(
                 sensorType: .barometer,
                 eventTime: Date()
             )
         }
-        
-        print("BarometerSensor: started sensor")
     }
     
     func stopUpdates() {
-        altimeter.stopRelativeAltitudeUpdates()
-        
-        print("BarometerSensor: stopped sensor")
+        sensor.stopRelativeAltitudeUpdates()
     }
 }
 

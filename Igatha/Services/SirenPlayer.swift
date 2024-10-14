@@ -7,15 +7,66 @@
 
 import AVFoundation
 
-class SirenPlayer: ObservableObject {
+class SirenPlayer {
+    weak var delegate: SirenPlayerDelegate?
+    
     private var audioEngine: AVAudioEngine?
     private var playerNode: AVAudioPlayerNode?
     
-    @Published public private(set) var isPlaying = false
+    public var isActive: Bool {
+        return playerNode?.isPlaying ?? false
+    }
+    public var isAvailable: Bool = false
+    
+    init() {
+        checkSupport()
+    }
+    
+    deinit {
+        stopSiren()
+    }
+    
+    private func checkSupport() {
+        let audioSession = AVAudioSession.sharedInstance()
+        
+        var isAvailable = true
+        do {
+            try audioSession.setCategory(
+                // needed to default to speaker
+                .playAndRecord,
+                mode: .default,
+                options: [
+                    // plays audio on phone speaker
+                    // not connected bluetooth devices
+                    .defaultToSpeaker,
+                    // plays alongside others
+                    .mixWithOthers,
+                    // lowers volume of others
+                    .duckOthers
+                ]
+            )
+            
+            // override the output audio port to speaker
+            try audioSession.overrideOutputAudioPort(.speaker)
+            
+            // toggle audio session for testing
+            try audioSession.setActive(true)
+            try audioSession.setActive(false)
+        } catch {
+            print("SirenPlayer: error with audio session: \(error)")
+            
+            isAvailable = false
+        }
+        
+        self.isAvailable = isAvailable
+        delegate?.sirenAvailabilityUpdate(isAvailable)
+    }
     
     func startSiren() {
-        // stop any existing siren
-        stopSiren()
+        guard
+            isAvailable
+                && !isActive
+        else { return }
         
         audioEngine = AVAudioEngine()
         playerNode = AVAudioPlayerNode()
@@ -40,27 +91,6 @@ class SirenPlayer: ObservableObject {
             format: audioFormat
         )
         
-        // configure audio session for background playback
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            try audioSession.setCategory(
-                .playAndRecord,
-                mode: .default,
-                options: [
-                    .defaultToSpeaker,
-                    .mixWithOthers,
-                    .duckOthers
-                ]
-            )
-            
-            try audioSession.overrideOutputAudioPort(.speaker)
-            
-            try audioSession.setActive(true)
-        } catch {
-            print("SirenPlayer: error configuring audio session: \(error)")
-            return
-        }
-        
         let buffer = createSirenBuffer(format: audioFormat)
         
         playerNode.scheduleBuffer(
@@ -70,43 +100,46 @@ class SirenPlayer: ObservableObject {
             completionHandler: nil
         )
         
+        let audioSession = AVAudioSession.sharedInstance()
         do {
+            // activate audio session
+            try audioSession.setActive(true)
+            
+            // start audio engine
             try audioEngine.start()
             
+            // play the siren buffer
             playerNode.play()
         } catch {
-            print("SirenPlayer: error starting audio engine: \(error)")
+            print("SirenPlayer: error starting siren: \(error)")
+            
+            stopSiren()
             return
         }
         
-        DispatchQueue.main.async {
-            self.isPlaying = true
-        }
-        
-        print("SirenPlayer: started siren")
+        delegate?.sirenStarted()
     }
     
     func stopSiren() {
+        // stop the siren buffer
         playerNode?.stop()
-        audioEngine?.stop()
-        
-        audioEngine = nil
         playerNode = nil
         
-        // deactivate audio session to conserve battery
+        // stop audio engine
+        audioEngine?.stop()
+        audioEngine = nil
+        
         let audioSession = AVAudioSession.sharedInstance()
         do {
+            // deactivate audio session
             try audioSession.setActive(false)
         } catch {
-            print("SirenPlayer: error deactivating audio session: \(error)")
+            print("SirenPlayer: error stopping siren: \(error)")
+            
             return
         }
         
-        DispatchQueue.main.async {
-            self.isPlaying = false
-        }
-        
-        print("SirenPlayer: stopped siren")
+        delegate?.sirenStopped()
     }
     
     // creates the siren sound
@@ -146,4 +179,11 @@ class SirenPlayer: ObservableObject {
         
         return buffer
     }
+}
+
+protocol SirenPlayerDelegate: AnyObject {
+    func sirenStarted()
+    func sirenStopped()
+    
+    func sirenAvailabilityUpdate(_ isAvailable: Bool)
 }

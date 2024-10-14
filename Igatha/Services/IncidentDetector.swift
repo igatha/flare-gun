@@ -7,7 +7,9 @@
 
 import Foundation
 
-class IncidentDetector: SensorDelegate, ObservableObject {
+class IncidentDetector: SensorDelegate {
+    weak var delegate: IncidentDetectorDelegate?
+    
     private let eventTimeWindow: TimeInterval
     private var eventTimes: [SensorType: Date] = [:]
     
@@ -15,7 +17,13 @@ class IncidentDetector: SensorDelegate, ObservableObject {
     private let gyroscopeSensor: GyroscopeSensor
     private let barometerSensor: BarometerSensor
     
-    @Published public var incidentDetected = false
+    public var isAvailable: Bool {
+        return (
+            accelerometerSensor.isAvailable &&
+            gyroscopeSensor.isAvailable &&
+            barometerSensor.isAvailable
+        )
+    }
     
     init(
         accelerationThreshold: Double,
@@ -40,22 +48,37 @@ class IncidentDetector: SensorDelegate, ObservableObject {
         accelerometerSensor.delegate = self
         gyroscopeSensor.delegate = self
         barometerSensor.delegate = self
+        
+        delegate?.incidentDetectorAvailabilityUpdate(isAvailable)
+    }
+    
+    deinit {
+        stopDetection()
     }
     
     func startDetection() {
+        guard isAvailable else { return }
+        
         accelerometerSensor.startUpdates()
         gyroscopeSensor.startUpdates()
         barometerSensor.startUpdates()
+        
+        delegate?.incidentDetectionStarted()
     }
     
     func stopDetection() {
         accelerometerSensor.stopUpdates()
         gyroscopeSensor.stopUpdates()
         barometerSensor.stopUpdates()
+        
+        delegate?.incidentDetectionStopped()
     }
     
     // called when a sensor exceeds a threshold
-    func sensorDidExceedThreshold(sensorType: SensorType, eventTime: Date) {
+    func sensorExceededThreshold(
+        sensorType: SensorType,
+        eventTime: Date
+    ) {
         eventTimes[sensorType] = eventTime
         
         checkForIncident()
@@ -77,11 +100,15 @@ class IncidentDetector: SensorDelegate, ObservableObject {
         }
         
         // incident detected
-        DispatchQueue.main.async {
-            self.incidentDetected = true
-        }
-        
-        print("IncidentDetector: incident detected")
+        delegate?.incidentDetected()
     }
 }
 
+protocol IncidentDetectorDelegate: AnyObject {
+    func incidentDetected()
+    
+    func incidentDetectionStarted()
+    func incidentDetectionStopped()
+    
+    func incidentDetectorAvailabilityUpdate(_ isAvailable: Bool)
+}
