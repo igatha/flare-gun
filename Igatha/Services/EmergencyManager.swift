@@ -32,7 +32,7 @@ class EmergencyManager: NSObject {
     public var isSOSActive: Bool {
         return (
             sosBeacon.isActive
-            && sirenPlayer.isActive
+            || sirenPlayer.isActive
         )
     }
     

@@ -11,56 +11,68 @@ struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
     
     @State private var selectedDevice: Device? = nil
+    @State private var showingSettings: Bool = false
     
     var body: some View {
-        VStack {
-            // list of devices
-            DeviceListView(
-                devices: viewModel.devices,
-                onDeviceSelect: { device in
-                    // open sheet with selected device
-                    selectedDevice = device
-                }
-            )
-            .padding(.bottom, 8)
-            
-            Spacer()
-            
-            // sos button
-            Button(action: {
-                if viewModel.isSOSActive {
-                    viewModel.stopSOS()
-                } else {
-                    // show confirmation alert
-                    viewModel.activeAlert = .sosConfirmation
-                }
-            }) {
-                Text(
-                    viewModel.isSOSAvailable
-                    ? viewModel.isSOSActive
+        NavigationView {
+            VStack {
+                // list of devices
+                DeviceListView(
+                    devices: viewModel.devices,
+                    onDeviceSelect: { device in
+                        // open sheet with selected device
+                        selectedDevice = device
+                    }
+                )
+                .padding(.bottom, 8)
+                
+                Spacer()
+                
+                // sos button
+                Button(action: {
+                    if viewModel.isSOSActive {
+                        viewModel.stopSOS()
+                    } else {
+                        // show confirmation alert
+                        viewModel.activeAlert = .sosConfirmation
+                    }
+                }) {
+                    Text(
+                        viewModel.isSOSAvailable
+                        ? viewModel.isSOSActive
                         ? "Stop SOS"
                         : "Send SOS"
-                    : "SOS Unavailable"
-                )
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(
-                    viewModel.isSOSActive
-                    ? Color.gray
-                    : Color.red
-                )
-                .opacity(
-                    viewModel.isSOSAvailable
-                    ? 1
-                    : 0.75
-                )
-                .cornerRadius(8)
+                        : "SOS Unavailable"
+                    )
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        viewModel.isSOSActive
+                        ? Color.gray
+                        : Color.red
+                    )
+                    .opacity(
+                        viewModel.isSOSAvailable
+                        ? 1
+                        : 0.75
+                    )
+                    .cornerRadius(8)
+                }
+                .disabled(!viewModel.isSOSAvailable)
+                .padding([.horizontal, .bottom])
+                .animation(.easeInOut, value: viewModel.isSOSActive)
             }
-            .disabled(!viewModel.isSOSAvailable)
-            .padding([.horizontal, .bottom])
-            .animation(.easeInOut, value: viewModel.isSOSActive)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                trailing: Button(action: {
+                    showingSettings = true
+                }) {
+                    Image(systemName: "gearshape")
+                        .imageScale(.large)
+                }
+            )
             .alert(item: $viewModel.activeAlert) { alertType in
                 switch alertType {
                 case .sosConfirmation:
@@ -93,11 +105,17 @@ struct ContentView: View {
                     )
                 }
             }
+            .sheet(item: $selectedDevice) { device in
+                // show the device details
+                DeviceDetailView(device: device)
+            }
+            .sheet(isPresented: $showingSettings) {
+                // show the app settings
+                SettingsView()
+                    .environmentObject(viewModel)
+            }
         }
-        .sheet(item: $selectedDevice) { device in
-            // show the device details
-            DeviceDetailView(device: device)
-        }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

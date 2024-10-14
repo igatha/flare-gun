@@ -5,7 +5,7 @@
 //  Created by Nizar Mahmoud on 14/10/2024.
 //
 
-import Foundation
+import SwiftUI
 
 class ContentViewModel: ObservableObject {
     @Published public var isSOSAvailable: Bool = false
@@ -15,7 +15,20 @@ class ContentViewModel: ObservableObject {
     
     @Published private var devicesMap: [String: Device] = [:]
     public var devices: [Device] {
-        return Array(devicesMap.values)
+        return devicesMap.values.sorted {
+            $0.rssi > $1.rssi
+        }
+    }
+    
+    @AppStorage("backgroundMonitoringEnabled")
+    var backgroundMonitoringEnabled: Bool = true {
+        didSet {
+            if backgroundMonitoringEnabled {
+                enableBackgroundMonitoring()
+            } else {
+                disableBackgroundMonitoring()
+            }
+        }
     }
     
     private let emergencyManager: EmergencyManager
@@ -40,6 +53,17 @@ class ContentViewModel: ObservableObject {
     func stopSOS() {
         emergencyManager.stopSOS()
     }
+    
+    func enableBackgroundMonitoring() {
+        // TODO: Handle case
+        print("Enable background monitoring")
+    }
+    
+    func disableBackgroundMonitoring() {
+        // TODO: Handle case
+        print("Disable background monitoring")
+    }
+    
 }
 
 extension ContentViewModel: EmergencyManagerDelegate {

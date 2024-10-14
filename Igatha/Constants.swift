@@ -8,11 +8,7 @@
 import CoreBluetooth
 
 struct Constants {
-    static let DispatchQueueLabel: String = "me.nizarmah.Igatha"
-    
-    static let SOSBeaconServiceID: CBUUID = CBUUID(
-        string: "928278d6-e3d5-42f5-95f8-a6d4fa0a43aa"
-    )
+    static let SOSBeaconServiceID: CBUUID = CBUUID(string: "1802")
     
     // threshold for sudden changes in linear acceleration
     // 3.0 g ~= dropping your phone on a hard surface

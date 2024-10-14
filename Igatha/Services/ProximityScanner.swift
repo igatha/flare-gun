@@ -21,7 +21,7 @@ class ProximityScanner: NSObject {
     override init() {
         super.init()
         
-        self.centralManager = CBCentralManager(delegate: self, queue: nil)
+        centralManager = CBCentralManager(delegate: self, queue: nil)
     }
     
     deinit {

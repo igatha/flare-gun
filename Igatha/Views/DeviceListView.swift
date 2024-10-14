@@ -9,23 +9,20 @@ import SwiftUI
 
 struct DeviceListView: View {
     let devices: [Device]
-    private var sortedDevices: [Device] {
-        devices.sorted { $0.estimateDistance() < $1.estimateDistance() }
-    }
     
     var onDeviceSelect: (Device) -> Void
     
     var body: some View {
         List {
             Section {
-                if sortedDevices.isEmpty {
+                if devices.isEmpty {
                     Text(
                         "No devices found nearby."
                     )
                     .foregroundColor(.gray)
                     .padding()
                 } else {
-                    ForEach(sortedDevices) { device in
+                    ForEach(devices) { device in
                         DeviceRowView(device: device)
                             .onTapGesture {
                                 // trigger the closure when tapped

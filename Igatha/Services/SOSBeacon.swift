@@ -21,7 +21,7 @@ class SOSBeacon: NSObject {
     override init() {
         super.init()
         
-        self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+        peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
     
     deinit {
@@ -56,15 +56,11 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
                 && !isActive
         else { return }
         
-        // setup sos beacon service
-        let sosBeaconService = setupSOSBeaconService()
-        peripheralManager.add(sosBeaconService)
-        
         // start broadcasting
         peripheralManager.startAdvertising(
             [
                 CBAdvertisementDataServiceUUIDsKey: [
-                    sosBeaconService.uuid
+                    Constants.SOSBeaconServiceID
                 ]
             ]
         )
@@ -75,19 +71,8 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
     // stop broadcasting as a peripheral
     public func stopBroadcasting() {
         peripheralManager.stopAdvertising()
-        peripheralManager.removeAllServices()
         
         delegate?.beaconStopped()
-    }
-    
-    // creates sos beacon service
-    private func setupSOSBeaconService() -> CBMutableService {
-        let service = CBMutableService(
-            type: Constants.SOSBeaconServiceID,
-            primary: true
-        )
-        
-        return service
     }
 }
 

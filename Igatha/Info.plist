@@ -7,16 +7,17 @@
         <string>Used to communicate with nearby devices during emergencies.</string>
         <key>NSBluetoothPeripheralUsageDescription</key>
         <string>Used to broadcast SOS messages during emergencies.</string>
-        
+
         <!-- Motion Usage Descriptions -->
         <key>NSMotionUsageDescription</key>
         <string>Used to detect incidents and trigger SOS response.</string>
-        
+
         <!-- Background modes -->
         <key>UIBackgroundModes</key>
         <array>
+            <!-- Used by the SOS beacon -->
             <string>bluetooth-peripheral</string>
-            <string>bluetooth-central</string>
+            <!-- Used by the siren player -->
             <string>audio</string>
         </array>
     </dict>
