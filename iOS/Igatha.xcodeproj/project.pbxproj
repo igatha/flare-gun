@@ -16,7 +16,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		595C0AE62CB17B20009A20E9 /* Exceptions for "Igatha" folder in "Igatha" target */ = {
+		59C19EE72CBFFC9500564F98 /* Exceptions for "Igatha" folder in "Igatha" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -29,7 +29,7 @@
 		595C0AD62CB17946009A20E9 /* Igatha */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				595C0AE62CB17B20009A20E9 /* Exceptions for "Igatha" folder in "Igatha" target */,
+				59C19EE72CBFFC9500564F98 /* Exceptions for "Igatha" folder in "Igatha" target */,
 			);
 			path = Igatha;
 			sourceTree = "<group>";
