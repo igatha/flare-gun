@@ -1,5 +1,5 @@
 //
-//  IncidentDetector.swift
+//  DisasterDetector.swift
 //  Igatha
 //
 //  Created by Nizar Mahmoud on 12/10/2024.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-class IncidentDetector: SensorDelegate {
-    weak var delegate: IncidentDetectorDelegate?
+class DisasterDetector: SensorDelegate {
+    weak var delegate: DisasterDetectorDelegate?
     
     private let eventTimeWindow: TimeInterval
     private var eventTimes: [SensorType: Date] = [:]
@@ -49,7 +49,7 @@ class IncidentDetector: SensorDelegate {
         gyroscopeSensor.delegate = self
         barometerSensor.delegate = self
         
-        delegate?.incidentDetectorAvailabilityUpdate(isAvailable)
+        delegate?.disasterDetectorAvailabilityUpdate(isAvailable)
     }
     
     deinit {
@@ -63,7 +63,7 @@ class IncidentDetector: SensorDelegate {
         gyroscopeSensor.startUpdates()
         barometerSensor.startUpdates()
         
-        delegate?.incidentDetectionStarted()
+        delegate?.disasterDetectionStarted()
     }
     
     func stopDetection() {
@@ -71,7 +71,7 @@ class IncidentDetector: SensorDelegate {
         gyroscopeSensor.stopUpdates()
         barometerSensor.stopUpdates()
         
-        delegate?.incidentDetectionStopped()
+        delegate?.disasterDetectionStopped()
     }
     
     // called when a sensor exceeds a threshold
@@ -100,15 +100,15 @@ class IncidentDetector: SensorDelegate {
         }
         
         // incident detected
-        delegate?.incidentDetected()
+        delegate?.disasterDetected()
     }
 }
 
-protocol IncidentDetectorDelegate: AnyObject {
-    func incidentDetected()
+protocol DisasterDetectorDelegate: AnyObject {
+    func disasterDetected()
     
-    func incidentDetectionStarted()
-    func incidentDetectionStopped()
+    func disasterDetectionStarted()
+    func disasterDetectionStopped()
     
-    func incidentDetectorAvailabilityUpdate(_ isAvailable: Bool)
+    func disasterDetectorAvailabilityUpdate(_ isAvailable: Bool)
 }

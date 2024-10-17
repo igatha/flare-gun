@@ -10,6 +10,11 @@ import SwiftUI
 struct DeviceRowView: View {
     @ObservedObject var device: Device
     
+    private var isStale: Bool {
+        let fiveMinutesAgo = Date().addingTimeInterval(-300)
+        return device.lastSeen < fiveMinutesAgo
+    }
+    
     var body: some View {
         HStack(spacing: 16) {
             // device icon
@@ -17,9 +22,7 @@ struct DeviceRowView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 40, height: 40)
-                .foregroundColor(
-                    getColor(for: device.estimateDistance())
-                )
+                .foregroundColor(.secondary)
             
             VStack(alignment: .leading, spacing: 4) {
                 // device short name
@@ -39,23 +42,10 @@ struct DeviceRowView: View {
                 )
                 .foregroundColor(.primary)
             }
-            
-            Spacer()
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
-    }
-    
-    func getColor(for distance: Double) -> Color {
-        switch distance {
-        case 0...10:
-            return .green
-        case 11...20:
-            return .yellow
-        case 21...50:
-            return .orange
-        default:
-            return .red
-        }
+        .opacity(isStale ? 0.4 : 1.0)
+        .animation(.easeInOut, value: isStale)
     }
 }

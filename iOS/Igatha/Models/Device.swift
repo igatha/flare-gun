@@ -11,7 +11,7 @@ import CoreBluetooth
 extension UUID {
     // returns the first 8 chars from a uuid string
     var shortName: String {
-        return self.uuidString.prefix(8).lowercased()
+        return self.uuidString.prefix(8).uppercased()
     }
 }
 
@@ -56,7 +56,7 @@ class Device: Identifiable, ObservableObject {
     ) -> Double {
         // 1 meter ~= -59.0 RSSI
         let txPower = -59.0
-
+        
         // path-loss exponent
         let n: Double = pathLossExponent.value
         
@@ -81,7 +81,7 @@ enum PathLossExponent {
     // dense urban environments
     // n = 4.0
     case urban
-
+    
     var value: Double {
         switch self {
         case .freeSpace:

@@ -10,68 +10,108 @@ import SwiftUI
 struct DeviceDetailView: View {
     @ObservedObject var device: Device
     
-    // environment mode to dismiss the sheet
-    @Environment(\.presentationMode) var presentationMode
-    
-    var body: some View {
-        // wrap in navigation view to add a close button
-        NavigationView {
-            VStack(
-                spacing: 20
-            ) {
-                // device icon
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 100, height: 100)
-                    .foregroundColor(
-                        getColor(for: device.estimateDistance())
-                    )
-                    .padding()
-                
-                // device short name
-                Text(device.shortName)
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                // device distance
-                Text(
-                    "\(String(format: "%.1f", device.estimateDistance())) meters away"
-                )
-                .font(
-                    .system(
-                        .headline,
-                        design: .monospaced
-                    )
-                )
-                .foregroundColor(.primary)
-                
-                Spacer()
-            }
-            .padding()
-            .navigationBarTitle(
-                "Device Details",
-                displayMode: .inline
-            )
-            .navigationBarItems(
-                trailing: Button("Close") {
-                    presentationMode.wrappedValue.dismiss()
-                }
-            )
+    private var timeSinceLastSeen: String {
+        let interval = Date().timeIntervalSince(device.lastSeen)
+        
+        let minute = 60.0
+        let hour = 60.0 * minute
+        let day = 24.0 * hour
+        let week = 7.0 * day
+        
+        if interval < minute {
+            let seconds = Int(interval)
+            return "\(seconds) second\(seconds != 1 ? "s" : "") ago"
+        } else if interval < hour {
+            let minutes = Int(interval / minute)
+            return "\(minutes) minute\(minutes != 1 ? "s" : "") ago"
+        } else if interval < day {
+            let hours = Int(interval / hour)
+            return "\(hours) hour\(hours != 1 ? "s" : "") ago"
+        } else if interval < week {
+            let days = Int(interval / day)
+            return "\(days) day\(days != 1 ? "s" : "") ago"
+        } else {
+            let weeks = Int(interval / week)
+            return "\(weeks) week\(weeks != 1 ? "s" : "") ago"
         }
     }
     
-    func getColor(for distance: Double) -> Color {
-        switch distance {
-        case 0...10:
-            return .green
-        case 11...20:
-            return .yellow
-        case 21...50:
-            return .orange
-        default:
-            return .red
+    var body: some View {
+        Form {
+            Section {
+                HStack {
+                    Text("Name")
+                    
+                    Spacer()
+                    
+                    Text(device.shortName)
+                        .foregroundColor(.secondary)
+                }
+                
+                HStack {
+                    Text("ID")
+                    
+                    Spacer()
+                    
+                    Text(device.id)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.trailing)
+                        .font(
+                            .system(
+                                .subheadline,
+                                design: .monospaced
+                            )
+                        )
+                }
+            } header: {
+                Text("Identity")
+                    .padding(.vertical, 4)
+            } footer: {
+                Text("Identity is pseudonymized for privacy.")
+                    .padding(.vertical, 4)
+            }
+            
+            Section {
+                HStack {
+                    Text("Distance")
+                    
+                    Spacer()
+                    
+                    Text("\(String(format: "%.1f", device.estimateDistance())) meters")
+                        .font(
+                            .system(
+                                .subheadline,
+                                design: .monospaced
+                            )
+                        )
+                        .foregroundColor(.secondary)
+                }
+            } header: {
+                Text("Location")
+                    .padding(.vertical, 4)
+            } footer: {
+                Text("Location is limited by used tech. Direction is not available. Distance is approximate and varies due to signal fluctuations. It is for general guidance only.")
+                    .padding(.vertical, 4)
+            }
+            
+            Section {
+                HStack {
+                    Text("Last Seen")
+                    
+                    Spacer()
+                    
+                    Text(timeSinceLastSeen)
+                        .foregroundColor(.secondary)
+                }
+            } header: {
+                Text("Status")
+                    .padding(.vertical, 4)
+            } footer: {
+                Text("Status shows if the device is active and in range.")
+                    .padding(.vertical, 4)
+            }
         }
+        .navigationTitle("Device Details")
     }
 }
 

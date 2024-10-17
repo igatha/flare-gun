@@ -8,36 +8,30 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var viewModel: ContentViewModel // Access the viewModel
-    @Environment(\.presentationMode) var presentationMode
+    @StateObject private var viewModel = SettingsViewModel()
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section {
-                    Toggle(isOn: $viewModel.backgroundMonitoringEnabled) {
-                        Text("Always-On Monitoring")
-                    }
-                    .onChange(of: viewModel.backgroundMonitoringEnabled) {
-                        if viewModel.backgroundMonitoringEnabled {
-                            viewModel.enableBackgroundMonitoring()
-                        } else {
-                            viewModel.disableBackgroundMonitoring()
-                        }
-                    }
+        Form {
+            Section {
+                Toggle(isOn: $viewModel.disasterMonitoringEnabled) {
+                    Text("Disaster Monitoring")
                     
-                    Text("Enabling always-on monitoring allows Igatha to detect emergencies even when the app is not in use. This may increase battery consumption.")
+                    Text("Detects disasters and sends SOS when the app is not in use. This may increase battery consumption.")
                         .font(.caption)
                         .foregroundColor(.gray)
-                } header: {
-                    Text("Background Services")
-                        .padding(.vertical)
                 }
+            } header: {
+                Text("Background Services")
+                    .padding(.vertical, 4)
+            } footer: {
+                Text("Services might require additional permissions.")
+                    .padding(.vertical, 4)
             }
-            .navigationBarTitle("Settings", displayMode: .inline)
-            .navigationBarItems(trailing: Button("Done") {
-                presentationMode.wrappedValue.dismiss()
-            })
         }
+        .navigationTitle("Settings")
     }
+}
+
+#Preview {
+    SettingsView()
 }

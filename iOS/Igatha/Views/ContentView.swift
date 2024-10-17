@@ -10,7 +10,6 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
     
-    @State private var selectedDevice: Device? = nil
     @State private var showingSettings: Bool = false
     
     var body: some View {
@@ -18,11 +17,7 @@ struct ContentView: View {
             VStack {
                 // list of devices
                 DeviceListView(
-                    devices: viewModel.devices,
-                    onDeviceSelect: { device in
-                        // open sheet with selected device
-                        selectedDevice = device
-                    }
+                    devices: viewModel.devices
                 )
                 .padding(.bottom, 8)
                 
@@ -66,9 +61,9 @@ struct ContentView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(
-                trailing: Button(action: {
-                    showingSettings = true
-                }) {
+                trailing: NavigationLink(
+                    destination: SettingsView()
+                ) {
                     Image(systemName: "gearshape")
                         .imageScale(.large)
                 }
@@ -88,9 +83,9 @@ struct ContentView: View {
                             viewModel.activeAlert = nil
                         }
                     )
-                case .incidentDetected:
+                case .disasterDetected:
                     return Alert(
-                        title: Text("Incident Detected"),
+                        title: Text("Disaster Detected"),
                         message: Text("Are you okay?"),
                         primaryButton: .default(Text("I'm Okay")) {
                             viewModel.stopSOS()
@@ -105,26 +100,9 @@ struct ContentView: View {
                     )
                 }
             }
-            .sheet(item: $selectedDevice) { device in
-                // show the device details
-                DeviceDetailView(device: device)
-            }
-            .sheet(isPresented: $showingSettings) {
-                // show the app settings
-                SettingsView()
-                    .environmentObject(viewModel)
-            }
         }
+        .navigationBarTitleDisplayMode(.inline)
         .navigationViewStyle(StackNavigationViewStyle())
-    }
-}
-
-enum ActiveAlert: Identifiable {
-    case sosConfirmation
-    case incidentDetected
-    
-    var id: Int {
-        hashValue
     }
 }
 

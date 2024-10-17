@@ -16,17 +16,16 @@ class EmergencyManager: NSObject {
     private var sosBeacon: SOSBeacon!
     private var sirenPlayer: SirenPlayer!
     
-    private var incidentDetector: IncidentDetector!
+    private var disasterDetector: DisasterDetector!
     
     private var sosConfirmationTimer: Timer?
-    private let sosConfirmationGracePeriod: TimeInterval =
-    Constants.IncidentResponseGracePeriod
+    private let sosConfirmationGracePeriod: TimeInterval = Constants.IncidentResponseGracePeriod
     
     public var isAvailable: Bool {
         return (
             sosBeacon.isAvailable
             && sirenPlayer.isAvailable
-            && incidentDetector.isAvailable
+            && disasterDetector.isAvailable
         )
     }
     public var isSOSActive: Bool {
@@ -42,7 +41,7 @@ class EmergencyManager: NSObject {
         sosBeacon = SOSBeacon()
         sirenPlayer = SirenPlayer()
         
-        incidentDetector = IncidentDetector(
+        disasterDetector = DisasterDetector(
             accelerationThreshold: Constants.SensorAccelerationThreshold,
             rotationThreshold: Constants.SensorRotationThreshold,
             pressureThreshold: Constants.SensorPressureThreshold,
@@ -52,7 +51,7 @@ class EmergencyManager: NSObject {
         sirenPlayer.delegate = self
         sosBeacon.delegate = self
         
-        incidentDetector.delegate = self
+        disasterDetector.delegate = self
         
         // setup local notifications
         setupNotificationCategories()
@@ -63,7 +62,7 @@ class EmergencyManager: NSObject {
     deinit {
         stopSOS()
         
-        incidentDetector.stopDetection()
+        disasterDetector.stopDetection()
     }
     
     @objc func startSOS() {
@@ -134,11 +133,11 @@ extension EmergencyManager: SOSBeaconDelegate {
     }
 }
 
-extension EmergencyManager: IncidentDetectorDelegate {
-    // called when an incident is detected
-    func incidentDetected() {
-        // handle incident detected
-        delegate?.incidentDetected()
+extension EmergencyManager: DisasterDetectorDelegate {
+    // called when an disaster is detected
+    func disasterDetected() {
+        // handle disaster detected
+        delegate?.disasterDetected()
         
         // schedule a notification if app is in background
         if UIApplication.shared.applicationState != .active {
@@ -149,24 +148,24 @@ extension EmergencyManager: IncidentDetectorDelegate {
         startSOSConfirmationTimer()
     }
     
-    // called when incident detection starts
-    func incidentDetectionStarted() {
+    // called when disaster detection starts
+    func disasterDetectionStarted() {
         // do nothing
     }
     
-    // called when incident detection stops
-    func incidentDetectionStopped() {
+    // called when disaster detection stops
+    func disasterDetectionStopped() {
         // do nothing
     }
     
-    // called when incident detector availablility changes
-    func incidentDetectorAvailabilityUpdate(
+    // called when disaster detector availablility changes
+    func disasterDetectorAvailabilityUpdate(
         _ isAvailable: Bool
     ) {
         if (isAvailable) {
-            incidentDetector.startDetection()
+            disasterDetector.startDetection()
         } else {
-            incidentDetector.stopDetection()
+            disasterDetector.stopDetection()
         }
         
         delegate?.emergencyManagerAvailabilityUpdate(isAvailable)
@@ -269,7 +268,7 @@ extension EmergencyManager: UNUserNotificationCenterDelegate {
 }
 
 protocol EmergencyManagerDelegate: AnyObject {
-    func incidentDetected()
+    func disasterDetected()
     
     func distressSignalStarted()
     func distressSignalStopped()

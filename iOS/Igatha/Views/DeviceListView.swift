@@ -10,8 +10,6 @@ import SwiftUI
 struct DeviceListView: View {
     let devices: [Device]
     
-    var onDeviceSelect: (Device) -> Void
-    
     var body: some View {
         List {
             Section {
@@ -23,19 +21,19 @@ struct DeviceListView: View {
                     .padding()
                 } else {
                     ForEach(devices) { device in
-                        DeviceRowView(device: device)
-                            .onTapGesture {
-                                // trigger the closure when tapped
-                                onDeviceSelect(device)
-                            }
+                        NavigationLink(
+                            destination: DeviceDetailView(device: device)
+                        ) {
+                            DeviceRowView(device: device)
+                        }
                     }
                 }
             } header: {
                 Text("People Seeking Help")
-                    .padding(.vertical)
+                    .padding(.vertical, 4)
             } footer: {
                 Text("Note: Distance is approximate and varies due to signal fluctuations. It is for general guidance only.")
-                    .padding(.vertical)
+                    .padding(.vertical, 4)
             }
         }
         .listStyle(.automatic)
@@ -52,7 +50,8 @@ struct DeviceListView_Previews: PreviewProvider {
             ),
             Device(
                 id: UUID(),
-                rssi: -60
+                rssi: -60,
+                lastSeen: Date().addingTimeInterval(-600)
             ),
             Device(
                 id: UUID(),
@@ -65,8 +64,7 @@ struct DeviceListView_Previews: PreviewProvider {
         ]
         
         return DeviceListView(
-            devices: mockDevices,
-            onDeviceSelect: {_ in }
+            devices: mockDevices
         )
     }
 }

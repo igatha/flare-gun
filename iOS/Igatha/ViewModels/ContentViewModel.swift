@@ -20,17 +20,6 @@ class ContentViewModel: ObservableObject {
         }
     }
     
-    @AppStorage("backgroundMonitoringEnabled")
-    var backgroundMonitoringEnabled: Bool = true {
-        didSet {
-            if backgroundMonitoringEnabled {
-                enableBackgroundMonitoring()
-            } else {
-                disableBackgroundMonitoring()
-            }
-        }
-    }
-    
     private let emergencyManager: EmergencyManager
     private let proximityScanner: ProximityScanner
     
@@ -65,23 +54,12 @@ class ContentViewModel: ObservableObject {
             self.isSOSActive = isActive ?? self.emergencyManager.isSOSActive
         }
     }
-    
-    func enableBackgroundMonitoring() {
-        // TODO: Handle case
-        print("Enable background monitoring")
-    }
-    
-    func disableBackgroundMonitoring() {
-        // TODO: Handle case
-        print("Disable background monitoring")
-    }
-    
 }
 
 extension ContentViewModel: EmergencyManagerDelegate {
-    func incidentDetected() {
+    func disasterDetected() {
         DispatchQueue.main.async {
-            self.activeAlert = .incidentDetected
+            self.activeAlert = .disasterDetected
         }
     }
     
@@ -121,13 +99,13 @@ extension ContentViewModel: ProximityScannerDelegate {
 
 enum AlertType: Identifiable {
     case sosConfirmation
-    case incidentDetected
+    case disasterDetected
     
     var id: Int {
         switch self {
         case .sosConfirmation:
             return 1
-        case .incidentDetected:
+        case .disasterDetected:
             return 2
         }
     }
