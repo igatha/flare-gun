@@ -7,16 +7,8 @@
 
 import SwiftUI
 
-class AppDelegate: UIResponder, UIApplicationDelegate {    
+class AppDelegate: UIResponder, UIApplicationDelegate {
     var emergencyManager: EmergencyManager!
-    
-    func application(
-        _ application: UIApplication,
-        willFinishLaunchingWithOptions launchOptions:
-        [UIApplication.LaunchOptionsKey: Any]?
-    ) -> Bool {
-        return true
-    }
     
     func application(
         _ application: UIApplication,
@@ -26,20 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // initialize EmergencyManager
         emergencyManager = EmergencyManager.shared
         
-        return true
-    }
-    
-    func application(
-        _ application: UIApplication,
-        shouldSaveSecureApplicationState coder: NSCoder
-    ) -> Bool {
-        return true
-    }
-    
-    func application(
-        _ application: UIApplication,
-        shouldRestoreSecureApplicationState coder: NSCoder
-    ) -> Bool {
         return true
     }
 }

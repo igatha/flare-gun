@@ -21,32 +21,17 @@ class SOSBeacon: NSObject {
     override init() {
         super.init()
         
-        peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+        peripheralManager = CBPeripheralManager(
+            delegate: self,
+            queue: nil,
+            options: [
+                CBPeripheralManagerOptionRestoreIdentifierKey: Constants.SOSBeaconRestoreID
+            ]
+        )
     }
     
     deinit {
         stopBroadcasting()
-    }
-}
-
-extension SOSBeacon: CBPeripheralManagerDelegate {
-    // called when the peripheral state changes
-    func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        switch peripheral.state {
-        case .poweredOn:
-            isAvailable = true
-            delegate?.beaconAvailabilityUpdate(true)
-            
-        case .poweredOff, .resetting, .unauthorized, .unsupported, .unknown:
-            isAvailable = false
-            delegate?.beaconAvailabilityUpdate(false)
-            stopBroadcasting()
-            
-        @unknown default:
-            isAvailable = false
-            delegate?.beaconAvailabilityUpdate(false)
-            stopBroadcasting()
-        }
     }
     
     // start broadcasting (or re-broadcasting) as a peipheral
@@ -71,8 +56,46 @@ extension SOSBeacon: CBPeripheralManagerDelegate {
     // stop broadcasting as a peripheral
     public func stopBroadcasting() {
         peripheralManager.stopAdvertising()
+        peripheralManager.removeAllServices()
         
         delegate?.beaconStopped()
+    }
+}
+
+extension SOSBeacon: CBPeripheralManagerDelegate {
+    // called when the peripheral state changes
+    func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
+        switch peripheral.state {
+        case .poweredOn:
+            isAvailable = true
+            
+        case .poweredOff, .resetting, .unauthorized, .unsupported, .unknown:
+            isAvailable = false
+            
+        @unknown default:
+            isAvailable = false
+        }
+        
+        delegate?.beaconAvailabilityUpdate(isAvailable)
+        
+        if !isAvailable {
+            stopBroadcasting()
+        }
+    }
+    
+    func peripheralManager(
+        _ peripheral: CBPeripheralManager,
+        willRestoreState dict: [String: Any]
+    ) {
+        // check if it was advertising
+        guard
+            let serviceUUIDs = dict[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID],
+            serviceUUIDs.contains(Constants.SOSBeaconServiceID)
+        else {
+            return
+        }
+        
+        startBroadcasting()
     }
 }
 

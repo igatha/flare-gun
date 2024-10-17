@@ -40,6 +40,8 @@ class ContentViewModel: ObservableObject {
         
         emergencyManager.delegate = self
         proximityScanner.delegate = self
+        
+        updateSOSAvailability()
     }
     
     deinit {
@@ -52,6 +54,16 @@ class ContentViewModel: ObservableObject {
     
     func stopSOS() {
         emergencyManager.stopSOS()
+    }
+    
+    func updateSOSAvailability(
+        isAvailable: Bool? = nil,
+        isActive: Bool? = nil
+    ) {
+        DispatchQueue.main.async {
+            self.isSOSAvailable = isAvailable ?? self.emergencyManager.isAvailable
+            self.isSOSActive = isActive ?? self.emergencyManager.isSOSActive
+        }
     }
     
     func enableBackgroundMonitoring() {
@@ -74,21 +86,15 @@ extension ContentViewModel: EmergencyManagerDelegate {
     }
     
     func distressSignalStarted() {
-        DispatchQueue.main.async {
-            self.isSOSActive = true
-        }
+        updateSOSAvailability(isActive: true)
     }
     
     func distressSignalStopped() {
-        DispatchQueue.main.async {
-            self.isSOSActive = false
-        }
+        updateSOSAvailability(isActive: false)
     }
     
     func emergencyManagerAvailabilityUpdate(_ isAvailable: Bool) {
-        DispatchQueue.main.async {
-            self.isSOSAvailable = isAvailable
-        }
+        updateSOSAvailability(isAvailable: isAvailable)
     }
 }
 

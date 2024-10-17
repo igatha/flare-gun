@@ -9,6 +9,7 @@ import CoreBluetooth
 
 struct Constants {
     static let SOSBeaconServiceID: CBUUID = CBUUID(string: "1802")
+    static let SOSBeaconRestoreID: String = "me.nizarmah.Igatha.sosbeacon"
     
     // threshold for sudden changes in linear acceleration
     // 3.0 g ~= dropping your phone on a hard surface

@@ -35,18 +35,20 @@ extension ProximityScanner: CBCentralManagerDelegate {
         switch central.state {
         case .poweredOn:
             isAvailable = true
-            delegate?.scannerAvailabilityUpdate(true)
-            startScanning()
             
         case .poweredOff, .resetting, .unauthorized, .unsupported, .unknown:
             isAvailable = false
-            delegate?.scannerAvailabilityUpdate(false)
-            stopScanning()
             
         @unknown default:
             isAvailable = false
-            delegate?.scannerAvailabilityUpdate(false)
+        }
+        
+        delegate?.scannerAvailabilityUpdate(isAvailable)
+        
+        if !isAvailable {
             stopScanning()
+        } else {
+            startScanning()
         }
     }
     
