@@ -13,19 +13,22 @@ class EmergencyManager: NSObject {
     
     weak var delegate: EmergencyManagerDelegate?
     
+    private var disasterDetector: DisasterDetector!
+    
+    public var isDetectorAvailable: Bool {
+        return disasterDetector.isAvailable
+    }
+    public var isDetectorActive: Bool {
+        return disasterDetector.isActive
+    }
+    
     private var sosBeacon: SOSBeacon!
     private var sirenPlayer: SirenPlayer!
     
-    private var disasterDetector: DisasterDetector!
-    
-    private var sosConfirmationTimer: Timer?
-    private let sosConfirmationGracePeriod: TimeInterval = Constants.IncidentResponseGracePeriod
-    
-    public var isAvailable: Bool {
+    public var isSOSAvailable: Bool {
         return (
             sosBeacon.isAvailable
             && sirenPlayer.isAvailable
-            && disasterDetector.isAvailable
         )
     }
     public var isSOSActive: Bool {
@@ -34,6 +37,9 @@ class EmergencyManager: NSObject {
             || sirenPlayer.isActive
         )
     }
+    
+    private var confirmationTimer: Timer?
+    private let confirmationGracePeriod: TimeInterval = Constants.DisasterResponseGracePeriod
     
     private override init() {
         super.init()
@@ -45,7 +51,7 @@ class EmergencyManager: NSObject {
             accelerationThreshold: Constants.SensorAccelerationThreshold,
             rotationThreshold: Constants.SensorRotationThreshold,
             pressureThreshold: Constants.SensorPressureThreshold,
-            eventTimeWindow: Constants.IncidentTemporalCorrelationTimeWindow
+            eventTimeWindow: Constants.DisasterTemporalCorrelationTimeWindow
         )
         
         sirenPlayer.delegate = self
@@ -65,32 +71,52 @@ class EmergencyManager: NSObject {
         disasterDetector.stopDetection()
     }
     
+    func startDetector() {
+        guard
+            isDetectorAvailable
+                && !isDetectorActive
+        else { return }
+        
+        disasterDetector.startDetection()
+        
+        delegate?.detectorStarted()
+    }
+    
+    func stopDetector() {
+        disasterDetector.stopDetection()
+        
+        delegate?.detectorStopped()
+    }
+    
     @objc func startSOS() {
-        guard isAvailable else { return }
+        guard
+            isSOSAvailable
+                && !isSOSActive
+        else { return }
         
         sosBeacon.startBroadcasting()
         sirenPlayer.startSiren()
         
-        delegate?.distressSignalStarted()
+        delegate?.sosStarted()
     }
     
     func stopSOS() {
         sirenPlayer.stopSiren()
         sosBeacon.stopBroadcasting()
         
-        sosConfirmationTimer?.invalidate()
-        sosConfirmationTimer = nil
+        confirmationTimer?.invalidate()
+        confirmationTimer = nil
         
-        delegate?.distressSignalStopped()
+        delegate?.sosStopped()
     }
     
     // starts confirmation timer for SOS
-    func startSOSConfirmationTimer() {
-        sosConfirmationTimer?.invalidate()
+    func startConfirmationTimer() {
+        confirmationTimer?.invalidate()
         
         // Schedule a new timer
-        sosConfirmationTimer = Timer.scheduledTimer(
-            timeInterval: sosConfirmationGracePeriod,
+        confirmationTimer = Timer.scheduledTimer(
+            timeInterval: confirmationGracePeriod,
             target: self,
             selector: #selector(startSOS),
             userInfo: nil,
@@ -112,7 +138,7 @@ extension EmergencyManager: SirenPlayerDelegate {
     
     // called when siren availability changes
     func sirenAvailabilityUpdate(_ isAvailable: Bool) {
-        delegate?.emergencyManagerAvailabilityUpdate(isAvailable)
+        delegate?.sosAvailabilityUpdate(isSOSAvailable)
     }
 }
 
@@ -129,7 +155,7 @@ extension EmergencyManager: SOSBeaconDelegate {
     
     // called when sos beacon availability changes
     func beaconAvailabilityUpdate(_ isAvailable: Bool) {
-        delegate?.emergencyManagerAvailabilityUpdate(isAvailable)
+        delegate?.sosAvailabilityUpdate(isSOSAvailable)
     }
 }
 
@@ -141,11 +167,11 @@ extension EmergencyManager: DisasterDetectorDelegate {
         
         // schedule a notification if app is in background
         if UIApplication.shared.applicationState != .active {
-            scheduleIncidentNotification()
+            scheduleDisasterNotification()
         }
         
         // start confirmation timer
-        startSOSConfirmationTimer()
+        startConfirmationTimer()
     }
     
     // called when disaster detection starts
@@ -162,13 +188,15 @@ extension EmergencyManager: DisasterDetectorDelegate {
     func disasterDetectorAvailabilityUpdate(
         _ isAvailable: Bool
     ) {
-        if (isAvailable) {
-            disasterDetector.startDetection()
-        } else {
-            disasterDetector.stopDetection()
-        }
+        NSLog("EmergencyManager: disaster detector\(isAvailable ? "" : " not") available")
         
-        delegate?.emergencyManagerAvailabilityUpdate(isAvailable)
+        delegate?.detectorAvailabilityUpdate(isDetectorAvailable)
+        
+        if !isAvailable {
+            stopDetector()
+        } else {
+            startDetector()
+        }
     }
 }
 
@@ -201,7 +229,7 @@ extension EmergencyManager: UNUserNotificationCenterDelegate {
         )
         
         let category = UNNotificationCategory(
-            identifier: "INCIDENT_CATEGORY",
+            identifier: "DISASTER_CATEGORY",
             actions: [respondAction, helpAction],
             intentIdentifiers: [],
             options: []
@@ -210,14 +238,14 @@ extension EmergencyManager: UNUserNotificationCenterDelegate {
         UNUserNotificationCenter.current().setNotificationCategories([category])
     }
     
-    // schedules a notification when an incident is detected
-    private func scheduleIncidentNotification() {
+    // schedules a notification when a disaster is detected
+    private func scheduleDisasterNotification() {
         let content = UNMutableNotificationContent()
         
-        content.title = "Incident Detected"
+        content.title = "Disaster Detected"
         content.body = "Are you okay?"
         content.sound = .default
-        content.categoryIdentifier = "INCIDENT_CATEGORY"
+        content.categoryIdentifier = "DISASTER_CATEGORY"
         
         let trigger = UNTimeIntervalNotificationTrigger(
             timeInterval: 1,
@@ -225,7 +253,7 @@ extension EmergencyManager: UNUserNotificationCenterDelegate {
         )
         
         let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
+            identifier: Constants.DisasterResponseNotificationID,
             content: content,
             trigger: trigger
         )
@@ -270,8 +298,13 @@ extension EmergencyManager: UNUserNotificationCenterDelegate {
 protocol EmergencyManagerDelegate: AnyObject {
     func disasterDetected()
     
-    func distressSignalStarted()
-    func distressSignalStopped()
+    func detectorStarted()
+    func detectorStopped()
     
-    func emergencyManagerAvailabilityUpdate(_ isAvailable: Bool)
+    func detectorAvailabilityUpdate(_ isAvailable: Bool)
+    
+    func sosStarted()
+    func sosStopped()
+    
+    func sosAvailabilityUpdate(_ isAvailable: Bool)
 }

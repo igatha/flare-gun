@@ -4,13 +4,19 @@
     <dict>
         <!-- Bluetooh Usage Descriptions -->
         <key>NSBluetoothAlwaysUsageDescription</key>
-        <string>Used to communicate with nearby devices during emergencies.</string>
+        <string>Used to find SOS signals during emergencies.</string>
         <key>NSBluetoothPeripheralUsageDescription</key>
-        <string>Used to broadcast SOS messages during emergencies.</string>
+        <string>Used to signal SOS during emergencies.</string>
 
         <!-- Motion Usage Descriptions -->
         <key>NSMotionUsageDescription</key>
-        <string>Used to detect incidents and trigger SOS response.</string>
+        <string>Used to detect disasters which affected the user.</string>
+        
+        <!-- Location Usage Descriptions -->
+        <key>NSLocationWhenInUseUsageDescription</key>
+        <string>Used to enable the sensors for disaster detection in the foreground.</string>
+        <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+        <string>Used to enable the sensors for disaster detection in the background.</string>
 
         <!-- Background modes -->
         <key>UIBackgroundModes</key>
@@ -19,6 +25,8 @@
             <string>bluetooth-peripheral</string>
             <!-- Used by the siren player -->
             <string>audio</string>
+            <!-- Used by disaster detector -->
+            <string>location</string>
         </array>
     </dict>
 </plist>

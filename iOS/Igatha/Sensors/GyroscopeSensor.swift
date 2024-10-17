@@ -58,10 +58,14 @@ class GyroscopeSensor: Sensor {
                 eventTime: Date()
             )
         }
+        
+        NSLog("GyroscopeSensor: started updates")
     }
     
     func stopUpdates() {
         sensor.stopGyroUpdates()
+        
+        NSLog("GyroscopeSensor: stopped updates")
     }
 }
 

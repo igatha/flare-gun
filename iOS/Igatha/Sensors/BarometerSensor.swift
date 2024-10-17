@@ -57,10 +57,14 @@ class BarometerSensor: Sensor {
                 eventTime: Date()
             )
         }
+        
+        NSLog("BarometerSensor: started updates")
     }
     
     func stopUpdates() {
         sensor.stopRelativeAltitudeUpdates()
+        
+        NSLog("BarometerSensor: stopped updates")
     }
 }
 

@@ -58,10 +58,14 @@ class AccelerometerSensor: Sensor {
                 eventTime: Date()
             )
         }
+        
+        NSLog("AccelerometerSensor: started updates")
     }
     
     func stopUpdates() {
         sensor.stopAccelerometerUpdates()
+        
+        NSLog("AccelerometerSensor: stopped updates")
     }
 }
 

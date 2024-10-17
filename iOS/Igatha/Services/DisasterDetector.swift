@@ -7,22 +7,33 @@
 
 import Foundation
 
-class DisasterDetector: SensorDelegate {
+class DisasterDetector {
     weak var delegate: DisasterDetectorDelegate?
     
     private let eventTimeWindow: TimeInterval
     private var eventTimes: [SensorType: Date] = [:]
+    
+    private let locationManager: LocationManager
     
     private let accelerometerSensor: AccelerometerSensor
     private let gyroscopeSensor: GyroscopeSensor
     private let barometerSensor: BarometerSensor
     
     public var isAvailable: Bool {
+        let isEnabled = UserDefaults.standard.bool(
+            forKey: Constants.DisasterDetectionSettingsKey
+        )
+        
         return (
+            isEnabled &&
+            locationManager.isAvailable &&
             accelerometerSensor.isAvailable &&
             gyroscopeSensor.isAvailable &&
             barometerSensor.isAvailable
         )
+    }
+    public var isActive: Bool {
+        return locationManager.isActive
     }
     
     init(
@@ -32,6 +43,8 @@ class DisasterDetector: SensorDelegate {
         eventTimeWindow: TimeInterval
     ) {
         self.eventTimeWindow = eventTimeWindow
+        
+        locationManager = LocationManager()
         
         accelerometerSensor = AccelerometerSensor(
             threshold: accelerationThreshold,
@@ -45,6 +58,8 @@ class DisasterDetector: SensorDelegate {
             threshold: pressureThreshold
         )
         
+        locationManager.delegate = self
+        
         accelerometerSensor.delegate = self
         gyroscopeSensor.delegate = self
         barometerSensor.delegate = self
@@ -57,7 +72,29 @@ class DisasterDetector: SensorDelegate {
     }
     
     func startDetection() {
-        guard isAvailable else { return }
+        guard
+            isAvailable
+                && !isActive
+        else { return }
+        
+        locationManager.startUpdates()
+        
+        NSLog("DisasterDetector: started detection")
+    }
+    
+    func stopDetection() {
+        locationManager.stopUpdates()
+        
+        NSLog("DisasterDetector: stopped detection")
+    }
+}
+
+extension DisasterDetector: LocationManagerDelegate {
+    func locationUpdatesStarted() {
+        guard
+            isAvailable
+                && !isActive
+        else { return }
         
         accelerometerSensor.startUpdates()
         gyroscopeSensor.startUpdates()
@@ -66,7 +103,7 @@ class DisasterDetector: SensorDelegate {
         delegate?.disasterDetectionStarted()
     }
     
-    func stopDetection() {
+    func locationUpdatesStopped() {
         accelerometerSensor.stopUpdates()
         gyroscopeSensor.stopUpdates()
         barometerSensor.stopUpdates()
@@ -74,6 +111,16 @@ class DisasterDetector: SensorDelegate {
         delegate?.disasterDetectionStopped()
     }
     
+    func locationManagerAvailabilityUpdate(_ isAvailable: Bool) {
+        delegate?.disasterDetectorAvailabilityUpdate(self.isAvailable)
+        
+        if !isAvailable {
+            stopDetection()
+        }
+    }
+}
+
+extension DisasterDetector: SensorDelegate {
     // called when a sensor exceeds a threshold
     func sensorExceededThreshold(
         sensorType: SensorType,
@@ -82,6 +129,8 @@ class DisasterDetector: SensorDelegate {
         eventTimes[sensorType] = eventTime
         
         checkForIncident()
+        
+        NSLog("DisasterDetector: \(sensorType) exceeded threshold")
     }
     
     // called when an incident is suspected
@@ -98,6 +147,8 @@ class DisasterDetector: SensorDelegate {
                 return
             }
         }
+        
+        NSLog("DisasterDetector: incident detected")
         
         // incident detected
         delegate?.disasterDetected()

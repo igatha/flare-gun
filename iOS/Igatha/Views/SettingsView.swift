@@ -13,10 +13,10 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle(isOn: $viewModel.disasterMonitoringEnabled) {
-                    Text("Disaster Monitoring")
+                Toggle(isOn: $viewModel.disasterDetectionEnabled) {
+                    Text("Disaster Detection")
                     
-                    Text("Detects disasters and sends SOS when the app is not in use. This may increase battery consumption.")
+                    Text("Detects disasters and sends SOS when the app is not in use. This requires location permission. This may increase battery consumption.")
                         .font(.caption)
                         .foregroundColor(.gray)
                 }

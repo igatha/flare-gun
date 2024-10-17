@@ -68,37 +68,37 @@ struct ContentView: View {
                         .imageScale(.large)
                 }
             )
-            .alert(item: $viewModel.activeAlert) { alertType in
-                switch alertType {
-                case .sosConfirmation:
-                    return Alert(
-                        title: Text("Are you sure?"),
-                        message: Text("This will broadcast your location and start a loud siren."),
-                        primaryButton: .destructive(Text("Yes")) {
-                            viewModel.startSOS()
-                            
-                            viewModel.activeAlert = nil
-                        },
-                        secondaryButton: .cancel() {
-                            viewModel.activeAlert = nil
-                        }
-                    )
-                case .disasterDetected:
-                    return Alert(
-                        title: Text("Disaster Detected"),
-                        message: Text("Are you okay?"),
-                        primaryButton: .default(Text("I'm Okay")) {
-                            viewModel.stopSOS()
-                            
-                            viewModel.activeAlert = nil
-                        },
-                        secondaryButton: .destructive(Text("Need Help")) {
-                            viewModel.startSOS()
-                            
-                            viewModel.activeAlert = nil
-                        }
-                    )
-                }
+        }
+        .alert(item: $viewModel.activeAlert) { alertType in
+            switch alertType {
+            case .sosConfirmation:
+                return Alert(
+                    title: Text("Are you sure?"),
+                    message: Text("This will broadcast your location and start a loud siren."),
+                    primaryButton: .destructive(Text("Yes")) {
+                        viewModel.startSOS()
+                        
+                        viewModel.activeAlert = nil
+                    },
+                    secondaryButton: .cancel() {
+                        viewModel.activeAlert = nil
+                    }
+                )
+            case .disasterDetected:
+                return Alert(
+                    title: Text("Disaster Detected"),
+                    message: Text("Are you okay?"),
+                    primaryButton: .default(Text("I'm Okay")) {
+                        viewModel.stopSOS()
+                        
+                        viewModel.activeAlert = nil
+                    },
+                    secondaryButton: .destructive(Text("Need Help")) {
+                        viewModel.startSOS()
+                        
+                        viewModel.activeAlert = nil
+                    }
+                )
             }
         }
         .navigationBarTitleDisplayMode(.inline)

@@ -8,13 +8,17 @@
 import SwiftUI
 
 class SettingsViewModel: ObservableObject {
-    @AppStorage("disasterMonitoringEnabled")
-    var disasterMonitoringEnabled: Bool = false {
+    @AppStorage(Constants.DisasterDetectionSettingsKey)
+    var disasterDetectionEnabled: Bool = true {
         didSet {
-            if disasterMonitoringEnabled {
-                // TODO: Handle case
+            if disasterDetectionEnabled {
+                DispatchQueue.global(qos: .background).async {
+                    EmergencyManager.shared.startDetector()
+                }
             } else {
-                // TODO: Handle case
+                DispatchQueue.global(qos: .background).async {
+                    EmergencyManager.shared.stopDetector()
+                }
             }
         }
     }

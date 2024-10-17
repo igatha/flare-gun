@@ -37,12 +37,28 @@ class ContentViewModel: ObservableObject {
         proximityScanner.stopScanning()
     }
     
+    func startDetector() {
+        DispatchQueue.global(qos: .background).async {
+            self.emergencyManager.startDetector()
+        }
+    }
+    
+    func stopDetector() {
+        DispatchQueue.global(qos: .background).async {
+            self.emergencyManager.stopDetector()
+        }
+    }
+    
     func startSOS() {
-        emergencyManager.startSOS()
+        DispatchQueue.global(qos: .background).async {
+            self.emergencyManager.startSOS()
+        }
     }
     
     func stopSOS() {
-        emergencyManager.stopSOS()
+        DispatchQueue.global(qos: .background).async {
+            self.emergencyManager.stopSOS()
+        }
     }
     
     func updateSOSAvailability(
@@ -50,8 +66,15 @@ class ContentViewModel: ObservableObject {
         isActive: Bool? = nil
     ) {
         DispatchQueue.main.async {
-            self.isSOSAvailable = isAvailable ?? self.emergencyManager.isAvailable
-            self.isSOSActive = isActive ?? self.emergencyManager.isSOSActive
+            self.isSOSAvailable = (
+                isAvailable
+                ?? self.emergencyManager.isSOSAvailable
+            )
+            
+            self.isSOSActive = (
+                isActive
+                ?? self.emergencyManager.isSOSActive
+            )
         }
     }
 }
@@ -63,15 +86,27 @@ extension ContentViewModel: EmergencyManagerDelegate {
         }
     }
     
-    func distressSignalStarted() {
+    func detectorStarted() {
+        // do nothing
+    }
+    
+    func detectorStopped() {
+        // do nothing
+    }
+    
+    func detectorAvailabilityUpdate(_ isAvailable: Bool) {
+        // do nothing
+    }
+    
+    func sosStarted() {
         updateSOSAvailability(isActive: true)
     }
     
-    func distressSignalStopped() {
+    func sosStopped() {
         updateSOSAvailability(isActive: false)
     }
     
-    func emergencyManagerAvailabilityUpdate(_ isAvailable: Bool) {
+    func sosAvailabilityUpdate(_ isAvailable: Bool) {
         updateSOSAvailability(isAvailable: isAvailable)
     }
 }
