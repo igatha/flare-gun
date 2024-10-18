@@ -7,7 +7,7 @@
         <string>Used to find SOS signals during emergencies.</string>
         <key>NSBluetoothPeripheralUsageDescription</key>
         <string>Used to signal SOS during emergencies.</string>
-
+        
         <!-- Motion Usage Descriptions -->
         <key>NSMotionUsageDescription</key>
         <string>Used to detect disasters which affected the user.</string>
@@ -17,7 +17,7 @@
         <string>Used to enable the sensors for disaster detection in the foreground.</string>
         <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
         <string>Used to enable the sensors for disaster detection in the background.</string>
-
+        
         <!-- Background modes -->
         <key>UIBackgroundModes</key>
         <array>

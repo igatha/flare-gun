@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		594A117D2CC255BF00592E2A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 594A117C2CC255BF00592E2A /* CoreLocation.framework */; };
 		595C0AEE2CB1F181009A20E9 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 595C0AED2CB1F181009A20E9 /* CoreBluetooth.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		594A117C2CC255BF00592E2A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		595C0AD42CB17946009A20E9 /* Igatha.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Igatha.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		595C0AED2CB1F181009A20E9 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -41,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				594A117D2CC255BF00592E2A /* CoreLocation.framework in Frameworks */,
 				595C0AEE2CB1F181009A20E9 /* CoreBluetooth.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -68,6 +71,7 @@
 		595C0AEA2CB1F179009A20E9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				594A117C2CC255BF00592E2A /* CoreLocation.framework */,
 				595C0AED2CB1F181009A20E9 /* CoreBluetooth.framework */,
 			);
 			name = Frameworks;
@@ -284,16 +288,18 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Igatha/Info.plist;
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Used to communicate with nearby devices during emergencies.";
-				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Used to broadcast SOS messages during emergencies.";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Used to access location during emergencies while app is in the background.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to access location during emergencies while app is in use.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "Used to detect incidents and trigger SOS response.";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Used to find SOS signals during emergencies.";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Used to signal SOS during emergencies.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Used to enable the sensors for disaster detection in the background.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to enable the sensors for disaster detection in the foreground.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "Used to detect disasters which affected the user.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -319,16 +325,18 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Igatha/Info.plist;
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Used to communicate with nearby devices during emergencies.";
-				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Used to broadcast SOS messages during emergencies.";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Used to access location during emergencies while app is in the background.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to access location during emergencies while app is in use.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "Used to detect incidents and trigger SOS response.";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Used to find SOS signals during emergencies.";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Used to signal SOS during emergencies.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Used to enable the sensors for disaster detection in the background.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to enable the sensors for disaster detection in the foreground.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "Used to detect disasters which affected the user.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
