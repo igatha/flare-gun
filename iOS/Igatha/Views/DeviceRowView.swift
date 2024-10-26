@@ -49,3 +49,17 @@ struct DeviceRowView: View {
         }
     }
 }
+
+struct DeviceRowView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Creating mock device
+        let mockDevice = Device(
+            id: UUID(),
+            rssi: -40
+        )
+        
+        return DeviceRowView(
+            device: mockDevice
+        )
+    }
+}
