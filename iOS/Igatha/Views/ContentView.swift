@@ -9,9 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
-    
-    @State private var showingSettings: Bool = false
-    
+
     var body: some View {
         NavigationView {
             VStack {
@@ -20,9 +18,9 @@ struct ContentView: View {
                     devices: viewModel.devices
                 )
                 .padding(.bottom, 8)
-                
+
                 Spacer()
-                
+
                 // sos button
                 Button(action: {
                     if viewModel.isSOSActive {
@@ -77,7 +75,7 @@ struct ContentView: View {
                     message: Text("This will broadcast your location and start a loud siren."),
                     primaryButton: .destructive(Text("Yes")) {
                         viewModel.startSOS()
-                        
+
                         viewModel.activeAlert = nil
                     },
                     secondaryButton: .cancel() {
@@ -90,12 +88,12 @@ struct ContentView: View {
                     message: Text("Are you okay?"),
                     primaryButton: .default(Text("I'm Okay")) {
                         viewModel.stopSOS()
-                        
+
                         viewModel.activeAlert = nil
                     },
                     secondaryButton: .destructive(Text("Need Help")) {
                         viewModel.startSOS()
-                        
+
                         viewModel.activeAlert = nil
                     }
                 )
