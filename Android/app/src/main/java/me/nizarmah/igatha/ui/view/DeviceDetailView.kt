@@ -14,6 +14,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,99 +44,120 @@ fun DeviceDetailView(
         calculateTimeSinceLastSeen(device.lastSeen)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-    ) {
-        TopAppBar(
-            title = { Text("Device Details") },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
-                        contentDescription = "Go back"
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Settings") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
+                            contentDescription = "Go back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                )
             )
-        )
-        LazyColumn {
-            item {
-                Section(
-                    header = "Identity",
-                    footer = "Identity is pseudonymized for privacy."
-                ) {
-                    SectionItem {
-                        Text(text = "Name", style = MaterialTheme.typography.bodyMedium)
-
-                        Spacer(modifier = Modifier.padding(4.dp))
-
-                        Text(
-                            text = device.shortName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+        ) {
+            TopAppBar(
+                title = { Text("Device Details") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
+                            contentDescription = "Go back"
                         )
                     }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                )
+            )
+            LazyColumn {
+                item {
+                    Section(
+                        header = "Identity",
+                        footer = "Identity is pseudonymized for privacy."
+                    ) {
+                        SectionItem {
+                            Text(text = "Name", style = MaterialTheme.typography.bodyMedium)
 
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                            Spacer(modifier = Modifier.padding(4.dp))
 
-                    SectionItem {
-                        Text(text = "ID", style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                text = device.shortName,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
 
-                        Spacer(modifier = Modifier.padding(4.dp))
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-                        Text(
-                            text = device.id,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.secondary,
-                            fontFamily = FontFamily.Monospace,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth(),
-                            letterSpacing = (-0.5).sp
-                        )
+                        SectionItem {
+                            Text(text = "ID", style = MaterialTheme.typography.bodyMedium)
+
+                            Spacer(modifier = Modifier.padding(4.dp))
+
+                            Text(
+                                text = device.id,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontFamily = FontFamily.Monospace,
+                                textAlign = TextAlign.End,
+                                modifier = Modifier.fillMaxWidth(),
+                                letterSpacing = (-0.5).sp
+                            )
+                        }
                     }
                 }
-            }
-            item {
-                Section(
-                    header = "Location",
-                    footer = "Location is limited by used tech. Direction is not available. Distance is approximate and varies due to signal fluctuations. It is for general guidance only."
-                ) {
-                    SectionItem {
-                        Text(text = "Distance", style = MaterialTheme.typography.bodyMedium)
+                item {
+                    Section(
+                        header = "Location",
+                        footer = "Location is limited by used tech. Direction is not available. Distance is approximate and varies due to signal fluctuations. It is for general guidance only."
+                    ) {
+                        SectionItem {
+                            Text(text = "Distance", style = MaterialTheme.typography.bodyMedium)
 
-                        Spacer(modifier = Modifier.padding(4.dp))
+                            Spacer(modifier = Modifier.padding(4.dp))
 
-                        Text(
-                            text = String.format(
-                                Locale.getDefault(),
-                                "%.1f meters away",
-                                device.estimateDistance()),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontFamily = FontFamily.Monospace
-                        )
+                            Text(
+                                text = String.format(
+                                    Locale.getDefault(),
+                                    "%.1f meters away",
+                                    device.estimateDistance()
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
                     }
                 }
-            }
-            item {
-                Section(
-                    header = "Status",
-                    footer = "Status shows if the device is active and in range."
-                ) {
-                    SectionItem {
-                        Text(text = "Last Seen", style = MaterialTheme.typography.bodyMedium)
+                item {
+                    Section(
+                        header = "Status",
+                        footer = "Status shows if the device is active and in range."
+                    ) {
+                        SectionItem {
+                            Text(text = "Last Seen", style = MaterialTheme.typography.bodyMedium)
 
-                        Spacer(modifier = Modifier.padding(4.dp))
+                            Spacer(modifier = Modifier.padding(4.dp))
 
-                        Text(
-                            text = timeSinceLastSeen,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                            Text(
+                                text = timeSinceLastSeen,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }

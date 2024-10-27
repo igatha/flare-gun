@@ -29,20 +29,55 @@ import com.google.gson.Gson
 import me.nizarmah.igatha.model.Device
 import me.nizarmah.igatha.ui.screen.SettingsScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentView() {
     val navController = rememberNavController()
     val gson = remember { Gson() }
 
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") {
+            HomeContent(
+                onDeviceClick = { device ->
+                    val deviceJson = gson.toJson(device)
+                    navController.navigate("device_detail/${deviceJson}")
+                },
+                onSettingsClick = {
+                    navController.navigate("settings")
+                }
+            )
+        }
+        composable("settings") {
+            SettingsScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(
+            route = "device_detail/{deviceJson}",
+            arguments = listOf(navArgument("deviceJson") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val deviceJson = backStackEntry.arguments?.getString("deviceJson")
+            val device = gson.fromJson(deviceJson, Device::class.java)
+            DeviceDetailView(device, onBackClick = {
+                navController.popBackStack()
+            })
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeContent(
+    onDeviceClick: (Device) -> Unit,
+    onSettingsClick: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
                 actions = {
-                    IconButton(onClick = {
-                        navController.navigate("settings")
-                    }) {
+                    IconButton(onClick = onSettingsClick) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Settings"
@@ -55,65 +90,30 @@ fun ContentView() {
             )
         }
     ) { paddingValues ->
-        NavHost(navController = navController, startDestination = "home") {
-            composable("home") {
-                HomeContent(
-                    paddingValues = paddingValues,
-                    onDeviceClick = { device ->
-                        val deviceJson = gson.toJson(device)
-                        navController.navigate("device_detail/${deviceJson}")
-                    }
-                )
-            }
-            composable("settings") {
-                SettingsScreen(
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
-                )
-            }
-            composable(
-                route = "device_detail/{deviceJson}",
-                arguments = listOf(navArgument("deviceJson") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val deviceJson = backStackEntry.arguments?.getString("deviceJson")
-                val device = gson.fromJson(deviceJson, Device::class.java)
-                DeviceDetailView(device, onBackClick = {
-                    navController.popBackStack()
-                })
-            }
-        }
-    }
-}
-
-@Composable
-fun HomeContent(
-    paddingValues: PaddingValues,
-    onDeviceClick: (Device) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .padding(paddingValues)
-            .fillMaxSize()
-    ) {
-        Box(
+        Column(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
+                .padding(paddingValues)
+                .fillMaxSize()
         ) {
-            DeviceListView(
-                devices = emptyList(), // Replace with actual device list when available
-                onDeviceClick = onDeviceClick
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                DeviceListView(
+                    devices = emptyList(), // Replace with actual device list when available
+                    onDeviceClick = onDeviceClick
+                )
+            }
+
+            SOSButton(
+                isSOSAvailable = true,
+                isSOSActive = false,
+                onSOSClick = {
+                    // TODO: Implement SOS button logic
+                }
             )
         }
-
-        SOSButton(
-            isSOSAvailable = true,
-            isSOSActive = false,
-            onSOSClick = {
-                // TODO: Implement SOS button logic
-            }
-        )
     }
 }
 

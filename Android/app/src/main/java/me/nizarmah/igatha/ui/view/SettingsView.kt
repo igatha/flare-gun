@@ -21,51 +21,57 @@ fun SettingsView(
     onDisasterDetectionEnabledChanged: (Boolean) -> Unit,
     onBackClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-    ) {
-        TopAppBar(
-            title = { Text("Settings") },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
-                        contentDescription = "Go back"
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Settings") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
+                            contentDescription = "Go back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                )
             )
-        )
-        LazyColumn {
-            item {
-                Section(
-                    header = "Background Services",
-                    footer = "Services might require additional permissions."
-                ) {
-                    SectionItem {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Disaster Detection",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+        ) {
+            LazyColumn {
+                item {
+                    Section(
+                        header = "Background Services",
+                        footer = "Services might require additional permissions."
+                    ) {
+                        SectionItem {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Disaster Detection",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
 
-                            Text(
-                                text = "Detects disasters and sends SOS when the app is not in use. This requires location permission. This may increase battery consumption.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.secondary
+                                Text(
+                                    text = "Detects disasters and sends SOS when the app is not in use. This requires location permission. This may increase battery consumption.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.padding(2.dp))
+
+                            Switch(
+                                checked = disasterDetectionEnabled,
+                                onCheckedChange = onDisasterDetectionEnabledChanged
                             )
                         }
-
-                        Spacer(modifier = Modifier.padding(2.dp))
-
-                        Switch(
-                            checked = disasterDetectionEnabled,
-                            onCheckedChange = onDisasterDetectionEnabledChanged
-                        )
                     }
                 }
             }
