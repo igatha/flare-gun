@@ -27,6 +27,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.gson.Gson
 import me.nizarmah.igatha.model.Device
+import me.nizarmah.igatha.ui.screen.SettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,9 +66,9 @@ fun ContentView() {
                 )
             }
             composable("settings") {
-                SettingsView(
+                SettingsScreen(
                     onBackClick = {
-                        // TODO: Add logic
+                        navController.popBackStack()
                     }
                 )
             }
@@ -78,7 +79,7 @@ fun ContentView() {
                 val deviceJson = backStackEntry.arguments?.getString("deviceJson")
                 val device = gson.fromJson(deviceJson, Device::class.java)
                 DeviceDetailView(device, onBackClick = {
-                    // TODO: Add logic
+                    navController.popBackStack()
                 })
             }
         }

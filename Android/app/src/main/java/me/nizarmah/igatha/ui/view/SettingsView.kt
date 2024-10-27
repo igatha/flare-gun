@@ -1,32 +1,26 @@
 package me.nizarmah.igatha.ui.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.sharp.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import me.nizarmah.igatha.ui.theme.IgathaTheme
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Icon
 import me.nizarmah.igatha.ui.component.Section
 import me.nizarmah.igatha.ui.component.SectionItem
+import me.nizarmah.igatha.ui.theme.IgathaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsView(onBackClick: () -> Unit) {
+fun SettingsView(
+    disasterDetectionEnabled: Boolean,
+    onDisasterDetectionEnabledChanged: (Boolean) -> Unit,
+    onBackClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,8 +42,8 @@ fun SettingsView(onBackClick: () -> Unit) {
         )
         LazyColumn {
             item {
-                Section (
-                    header = "Background services",
+                Section(
+                    header = "Background Services",
                     footer = "Services might require additional permissions."
                 ) {
                     SectionItem {
@@ -69,10 +63,8 @@ fun SettingsView(onBackClick: () -> Unit) {
                         Spacer(modifier = Modifier.padding(2.dp))
 
                         Switch(
-                            checked = true,
-                            onCheckedChange = {
-                                // TODO: Add view model logic
-                            }
+                            checked = disasterDetectionEnabled,
+                            onCheckedChange = onDisasterDetectionEnabledChanged
                         )
                     }
                 }
@@ -85,6 +77,10 @@ fun SettingsView(onBackClick: () -> Unit) {
 @Composable
 fun SettingsViewPreview() {
     IgathaTheme {
-        SettingsView(onBackClick = {})
+        SettingsView(
+            disasterDetectionEnabled = true,
+            onDisasterDetectionEnabledChanged = {},
+            onBackClick = {}
+        )
     }
 }
