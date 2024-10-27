@@ -1,5 +1,7 @@
 package me.nizarmah.igatha.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -8,17 +10,23 @@ fun UUID.shortName(): String {
     return this.toString().substring(0, 8).uppercase()
 }
 
-class Device(
-    val id: UUID,
-    rssi: Double,
-    lastSeen: Date = Date()
-) {
-    val shortName: String = id.shortName()
-
-    var rssi: Double = rssi
-        private set
-    var lastSeen: Date = lastSeen
-        private set
+@Parcelize
+data class Device(
+    val id: String,
+    val shortName: String,
+    var rssi: Double,
+    var lastSeen: Date = Date()
+) : Parcelable {
+    constructor(
+        id: UUID,
+        rssi: Double,
+        lastSeen: Date = Date()
+    ) : this(
+        id.toString().uppercase(),
+        id.shortName(),
+        rssi,
+        lastSeen
+    )
 
     fun update(rssi: Double, lastSeen: Date = Date()) {
         val oldRSSI = this.rssi

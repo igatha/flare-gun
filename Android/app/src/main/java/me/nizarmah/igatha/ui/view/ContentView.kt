@@ -1,8 +1,7 @@
 package me.nizarmah.igatha.ui.view
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,11 +20,19 @@ import androidx.compose.ui.unit.dp
 import me.nizarmah.igatha.ui.theme.Gray
 import me.nizarmah.igatha.ui.theme.IgathaTheme
 import me.nizarmah.igatha.ui.theme.Red
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.google.gson.Gson
+import me.nizarmah.igatha.model.Device
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentView() {
-    // TODO: Initialize your ViewModel here when ready
+    val navController = rememberNavController()
+    val gson = remember { Gson() }
 
     Scaffold(
         topBar = {
@@ -33,7 +40,7 @@ fun ContentView() {
                 title = {},
                 actions = {
                     IconButton(onClick = {
-                        // TODO: Implement navigation to SettingsView
+                        navController.navigate("settings")
                     }) {
                         Icon(
                             imageVector = Icons.Default.Settings,
@@ -45,33 +52,68 @@ fun ContentView() {
                     containerColor = MaterialTheme.colorScheme.surfaceContainer
                 )
             )
-        },
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
-                    DeviceListView(devices = emptyList())
-                }
-
-                Spacer(modifier = Modifier)
-
-                SOSButton(
-                    isSOSAvailable = true,
-                    isSOSActive = false,
-                    onSOSClick = {
-                        // TODO: Implement SOS button logic
+        }
+    ) { paddingValues ->
+        NavHost(navController = navController, startDestination = "home") {
+            composable("home") {
+                HomeContent(
+                    paddingValues = paddingValues,
+                    onDeviceClick = { device ->
+                        val deviceJson = gson.toJson(device)
+                        navController.navigate("device_detail/${deviceJson}")
                     }
                 )
             }
+            composable("settings") {
+                SettingsView(
+                    onBackClick = {
+                        // TODO: Add logic
+                    }
+                )
+            }
+            composable(
+                route = "device_detail/{deviceJson}",
+                arguments = listOf(navArgument("deviceJson") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val deviceJson = backStackEntry.arguments?.getString("deviceJson")
+                val device = gson.fromJson(deviceJson, Device::class.java)
+                DeviceDetailView(device, onBackClick = {
+                    // TODO: Add logic
+                })
+            }
         }
-    )
+    }
+}
+
+@Composable
+fun HomeContent(
+    paddingValues: PaddingValues,
+    onDeviceClick: (Device) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            DeviceListView(
+                devices = emptyList(), // Replace with actual device list when available
+                onDeviceClick = onDeviceClick
+            )
+        }
+
+        SOSButton(
+            isSOSAvailable = true,
+            isSOSActive = false,
+            onSOSClick = {
+                // TODO: Implement SOS button logic
+            }
+        )
+    }
 }
 
 @Composable
