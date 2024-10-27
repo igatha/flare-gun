@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import me.nizarmah.igatha.ui.screen.ContentScreen
 import me.nizarmah.igatha.ui.theme.IgathaTheme
-import me.nizarmah.igatha.ui.view.ContentView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             IgathaTheme {
-                ContentView()
+                ContentScreen()
             }
         }
     }

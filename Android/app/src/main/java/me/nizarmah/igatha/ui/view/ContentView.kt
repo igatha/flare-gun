@@ -1,7 +1,6 @@
 package me.nizarmah.igatha.ui.view
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,57 +19,19 @@ import androidx.compose.ui.unit.dp
 import me.nizarmah.igatha.ui.theme.Gray
 import me.nizarmah.igatha.ui.theme.IgathaTheme
 import me.nizarmah.igatha.ui.theme.Red
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import com.google.gson.Gson
 import me.nizarmah.igatha.model.Device
-import me.nizarmah.igatha.ui.screen.SettingsScreen
-
-@Composable
-fun ContentView() {
-    val navController = rememberNavController()
-    val gson = remember { Gson() }
-
-    NavHost(navController = navController, startDestination = "home") {
-        composable("home") {
-            HomeContent(
-                onDeviceClick = { device ->
-                    val deviceJson = gson.toJson(device)
-                    navController.navigate("device_detail/${deviceJson}")
-                },
-                onSettingsClick = {
-                    navController.navigate("settings")
-                }
-            )
-        }
-        composable("settings") {
-            SettingsScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
-        }
-        composable(
-            route = "device_detail/{deviceJson}",
-            arguments = listOf(navArgument("deviceJson") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val deviceJson = backStackEntry.arguments?.getString("deviceJson")
-            val device = gson.fromJson(deviceJson, Device::class.java)
-            DeviceDetailView(device, onBackClick = {
-                navController.popBackStack()
-            })
-        }
-    }
-}
+import me.nizarmah.igatha.viewmodel.AlertType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeContent(
-    onDeviceClick: (Device) -> Unit,
-    onSettingsClick: () -> Unit
+fun ContentView(
+    isSOSAvailable: Boolean,
+    isSOSActive: Boolean,
+    devices: List<Device>,
+    activeAlert: AlertType?,
+    onSOSClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onDeviceClick: (Device) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -101,18 +62,64 @@ fun HomeContent(
                     .fillMaxWidth()
             ) {
                 DeviceListView(
-                    devices = emptyList(), // Replace with actual device list when available
+                    devices = devices,
                     onDeviceClick = onDeviceClick
                 )
             }
 
             SOSButton(
-                isSOSAvailable = true,
-                isSOSActive = false,
-                onSOSClick = {
-                    // TODO: Implement SOS button logic
-                }
+                isSOSAvailable = isSOSAvailable,
+                isSOSActive = isSOSActive,
+                onSOSClick = onSOSClick
             )
+        }
+    }
+
+    // Handle alerts
+    activeAlert?.let { alert ->
+        when (alert) {
+            is AlertType.SOSConfirmation -> {
+                AlertDialog(
+                    onDismissRequest = { /* TODO */ },
+                    title = { Text("Are you sure?") },
+                    text = { Text("This will broadcast your location and start a loud siren.") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = { /* TODO */ }
+                        ) {
+                            Text("Yes")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { /* TODO */ }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+            is AlertType.DisasterDetected -> {
+                AlertDialog(
+                    onDismissRequest = { /* TODO */ },
+                    title = { Text("Disaster Detected") },
+                    text = { Text("Are you okay?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = { /* TODO */ }
+                        ) {
+                            Text("I'm Okay")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { /* TODO */ }
+                        ) {
+                            Text("Need Help")
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -157,6 +164,18 @@ fun SOSButton(
 @Composable
 fun ContentViewPreview() {
     IgathaTheme {
-        ContentView()
+        ContentView(
+            isSOSAvailable = true,
+            isSOSActive = false,
+            devices = emptyList(), // Replace with actual device list when available
+            activeAlert = null,
+            onSOSClick = {
+                // TODO: Implement SOS button logic
+            },
+            onSettingsClick = {},
+            onDeviceClick = { device ->
+                // TODO: Implement navigation to device detail
+            }
+        )
     }
 }
