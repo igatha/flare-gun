@@ -281,6 +281,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Igatha/Igatha.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Igatha/Preview Content\"";
@@ -288,6 +289,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Igatha/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Igatha;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Used to find SOS signals during emergencies.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Used to signal SOS during emergencies.";
@@ -318,6 +320,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Igatha/Igatha.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Igatha/Preview Content\"";
@@ -325,6 +328,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Igatha/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Igatha;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Used to find SOS signals during emergencies.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Used to signal SOS during emergencies.";
