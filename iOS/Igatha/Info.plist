@@ -28,5 +28,9 @@
             <!-- Used by disaster detector -->
             <string>location</string>
         </array>
+
+        <!-- Compliance -->
+        <key>ITSAppUsesNonExemptEncryption</key>
+        <false/>
     </dict>
 </plist>
