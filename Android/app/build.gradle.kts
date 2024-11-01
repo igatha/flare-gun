@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "me.nizarmah.igatha"
+    namespace = "com.nizarmah.igatha"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "me.nizarmah.igatha"
+        applicationId = "com.nizarmah.igatha"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
