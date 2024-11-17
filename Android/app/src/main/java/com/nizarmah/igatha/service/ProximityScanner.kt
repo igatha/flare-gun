@@ -7,59 +7,79 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.util.Log
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import com.nizarmah.igatha.Constants
 import com.nizarmah.igatha.model.Device
 import java.util.Date
 import java.util.UUID
 
 class ProximityScanner(private val context: Context) {
-    interface Delegate {
-        fun scannedDevice(device: Device)
-        fun scannerAvailabilityUpdate(isAvailable: Boolean)
-    }
+    private val _isActive = MutableStateFlow(false)
+    val isActive: StateFlow<Boolean> = _isActive.asStateFlow()
 
-    var delegate: Delegate? = null
+    private val _isAvailable = MutableStateFlow(false)
+    val isAvailable: StateFlow<Boolean> = _isAvailable.asStateFlow()
+
+    private val _scannedDevices = MutableStateFlow<Device?>(null)
+    val scannedDevices: StateFlow<Device?> = _scannedDevices.asStateFlow()
 
     private var bluetoothLeScanner: BluetoothLeScanner? = null
-
-    private var isScanning = false
-
-    val isActive: Boolean
-        get() = isScanning && bluetoothLeScanner != null
-
-    var isAvailable: Boolean = false
-        private set
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
 
+            val macAddress = result.device.address
+            val uuid = UUID.nameUUIDFromBytes(macAddress.toByteArray())
+
             val device = Device(
-                id = UUID.fromString(result.device.address.replace(":", "")),
+                id = uuid,
                 rssi = result.rssi.toDouble(),
                 lastSeen = Date()
             )
 
-            delegate?.scannedDevice(device)
+            _scannedDevices.value = device
         }
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
-            Log.e(TAG, "Scan failed with error: $errorCode")
+            Log.e(TAG, "Scanning failed with error: $errorCode")
             stopScanning()
+        }
+    }
+
+    private val bluetoothStateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (BluetoothAdapter.ACTION_STATE_CHANGED != intent?.action) return
+
+            updateAvailability()
         }
     }
 
     init {
         initialize()
+
+        // Register for Bluetooth state changes
+        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        context.registerReceiver(bluetoothStateReceiver, filter)
+    }
+
+    fun deinit() {
+        context.unregisterReceiver(bluetoothStateReceiver)
+        stopScanning()
     }
 
     private fun initialize() {
         val bluetoothAdapter = getBluetoothAdapter()
         if (bluetoothAdapter == null) {
-            isAvailable = false
+            _isAvailable.value = false
             return
         }
 
@@ -68,58 +88,54 @@ class ProximityScanner(private val context: Context) {
     }
 
     fun startScanning() {
-        if (!isAvailable || isActive) {
+        if (!_isAvailable.value || _isActive.value) {
             return
         }
 
-        val scanFilter = ScanFilter.Builder()
-            .setServiceUuid(Constants.SOS_BEACON_SERVICE_UUID)
-            .build()
+        val scanFilters = listOf(
+            ScanFilter.Builder()
+                .setServiceUuid(Constants.SOS_BEACON_SERVICE_UUID)
+                .build()
+        )
 
-        val settings = ScanSettings.Builder()
+        val scanSettings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
 
         try {
-            bluetoothLeScanner?.startScan(
-                listOf(scanFilter),
-                settings,
-                scanCallback
-            )
-            isScanning = true
+            bluetoothLeScanner?.startScan(scanFilters, scanSettings, scanCallback)
+            _isActive.value = true
         } catch (e: SecurityException) {
-            Log.e(TAG, "SecurityException starting scan: ${e.message}")
+            Log.e(TAG, "SecurityException in startScanning: ${e.message}")
+            _isActive.value = false
         }
     }
 
     fun stopScanning() {
         try {
             bluetoothLeScanner?.stopScan(scanCallback)
-            isScanning = false
         } catch (e: SecurityException) {
-            Log.e(TAG, "SecurityException stopping scan: ${e.message}")
+            Log.e(TAG, "SecurityException in stopScanning: ${e.message}")
         }
+
+        _isActive.value = false
     }
 
     private fun updateAvailability() {
         val bluetoothAdapter = getBluetoothAdapter()
         if (bluetoothAdapter == null) {
-            isAvailable = false
+            _isAvailable.value = false
             return
         }
 
         try {
-            isAvailable = bluetoothAdapter.isEnabled
+            _isAvailable.value = bluetoothAdapter.isEnabled
+            if (!_isAvailable.value && _isActive.value) {
+                stopScanning()
+            }
         } catch (e: SecurityException) {
-            isAvailable = false
+            _isAvailable.value = false
             Log.e(TAG, "SecurityException in updateAvailability: ${e.message}")
-            return
-        }
-
-        delegate?.scannerAvailabilityUpdate(isAvailable)
-
-        if (!isAvailable && isActive) {
-            stopScanning()
         }
     }
 
