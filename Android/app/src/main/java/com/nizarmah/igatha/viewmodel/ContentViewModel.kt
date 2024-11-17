@@ -9,17 +9,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.nizarmah.igatha.model.Device
+import com.nizarmah.igatha.service.EmergencyManager
 import com.nizarmah.igatha.service.ProximityScanner
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 
 class ContentViewModel(app: Application) : AndroidViewModel(app) {
-    private val _isSOSAvailable = MutableStateFlow(false)
-    val isSOSAvailable: StateFlow<Boolean> = _isSOSAvailable.asStateFlow()
+    private val emergencyManager = EmergencyManager(app)
 
-    private val _isSOSActive = MutableStateFlow(false)
-    val isSOSActive: StateFlow<Boolean> = _isSOSActive.asStateFlow()
+    val isSOSAvailable: StateFlow<Boolean> = emergencyManager.isSOSAvailable
+    val isSOSActive: StateFlow<Boolean> = emergencyManager.isSOSActive
 
     private val _activeAlert = MutableStateFlow<AlertType?>(null)
     val activeAlert: StateFlow<AlertType?> = _activeAlert.asStateFlow()
@@ -38,8 +38,6 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     private val proximityScanner = ProximityScanner(app)
 
     init {
-        updateSOSAvailability()
-
         // Observe proximity scanner's scanned devices
         viewModelScope.launch {
             proximityScanner.scannedDevices.collect { device ->
@@ -61,6 +59,7 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     override fun onCleared() {
         super.onCleared()
         proximityScanner.deinit()
+        emergencyManager.deinit()
     }
 
     private fun updateDevice(device: Device) {
@@ -84,19 +83,27 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun startSOS() {
-        // TODO: Add logic
+        viewModelScope.launch {
+            emergencyManager.startSOS()
+
+            dismissAlert()
+        }
     }
 
     fun stopSOS() {
-        // TODO: Add logic
+        viewModelScope.launch {
+            emergencyManager.stopSOS()
+
+            dismissAlert()
+        }
     }
 
-    private fun updateSOSAvailability(
-        isAvailable: Boolean? = null,
-        isActive: Boolean? = null
-    ) {
-        _isSOSAvailable.value = isAvailable == true
-        _isSOSActive.value = isActive == true
+    fun showSOSConfirmation() {
+        _activeAlert.value = AlertType.SOSConfirmation
+    }
+
+    fun dismissAlert() {
+        _activeAlert.value = null
     }
 }
 

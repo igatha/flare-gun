@@ -21,6 +21,8 @@ import com.nizarmah.igatha.ui.theme.IgathaTheme
 import com.nizarmah.igatha.ui.theme.Red
 import com.nizarmah.igatha.model.Device
 import com.nizarmah.igatha.viewmodel.AlertType
+import java.util.Date
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +32,8 @@ fun ContentView(
     devices: List<Device>,
     activeAlert: AlertType?,
     onSOSClick: () -> Unit,
+    onConfirmSOS: () -> Unit,
+    onDismissAlert: () -> Unit,
     onSettingsClick: () -> Unit,
     onDeviceClick: (Device) -> Unit
 ) {
@@ -80,19 +84,19 @@ fun ContentView(
         when (alert) {
             is AlertType.SOSConfirmation -> {
                 AlertDialog(
-                    onDismissRequest = { /* TODO */ },
+                    onDismissRequest = onDismissAlert,
                     title = { Text("Are you sure?") },
                     text = { Text("This will broadcast your location and start a loud siren.") },
                     confirmButton = {
                         TextButton(
-                            onClick = { /* TODO */ }
+                            onClick = onConfirmSOS
                         ) {
                             Text("Yes")
                         }
                     },
                     dismissButton = {
                         TextButton(
-                            onClick = { /* TODO */ }
+                            onClick = onDismissAlert
                         ) {
                             Text("Cancel")
                         }
@@ -101,19 +105,19 @@ fun ContentView(
             }
             is AlertType.DisasterDetected -> {
                 AlertDialog(
-                    onDismissRequest = { /* TODO */ },
+                    onDismissRequest = onDismissAlert,
                     title = { Text("Disaster Detected") },
                     text = { Text("Are you okay?") },
                     confirmButton = {
                         TextButton(
-                            onClick = { /* TODO */ }
+                            onClick = onDismissAlert
                         ) {
                             Text("I'm Okay")
                         }
                     },
                     dismissButton = {
                         TextButton(
-                            onClick = { /* TODO */ }
+                            onClick = onConfirmSOS
                         ) {
                             Text("Need Help")
                         }
@@ -167,15 +171,24 @@ fun ContentViewPreview() {
         ContentView(
             isSOSAvailable = true,
             isSOSActive = false,
-            devices = emptyList(), // Replace with actual device list when available
+            devices = listOf(
+                Device(
+                    id = UUID.randomUUID(),
+                    rssi = -75.0,
+                    lastSeen = Date()
+                ),
+                Device(
+                    id = UUID.randomUUID(),
+                    rssi = -85.0,
+                    lastSeen = Date()
+                )
+            ),
             activeAlert = null,
-            onSOSClick = {
-                // TODO: Implement SOS button logic
-            },
+            onSOSClick = {},
+            onConfirmSOS = {},
+            onDismissAlert = {},
             onSettingsClick = {},
-            onDeviceClick = { device ->
-                // TODO: Implement navigation to device detail
-            }
+            onDeviceClick = { device -> }
         )
     }
 }

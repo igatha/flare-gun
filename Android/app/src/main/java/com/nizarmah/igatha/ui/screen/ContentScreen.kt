@@ -65,9 +65,14 @@ fun ContentScreen() {
                     if (isSOSActive) {
                         viewModel.stopSOS()
                     } else {
-                        // Show confirmation alert
-                        // TODO: Implement alert dialog
+                        viewModel.showSOSConfirmation()
                     }
+                },
+                onConfirmSOS = {
+                    viewModel.startSOS()
+                },
+                onDismissAlert = {
+                    viewModel.dismissAlert()
                 },
                 onSettingsClick = {
                     navController.navigate("settings")
