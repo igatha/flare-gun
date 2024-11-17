@@ -47,7 +47,7 @@ fun DeviceDetailView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text("Device Details") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -68,20 +68,6 @@ fun DeviceDetailView(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceContainer)
         ) {
-            TopAppBar(
-                title = { Text("Device Details") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
-                            contentDescription = "Go back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                )
-            )
             LazyColumn {
                 item {
                     Section(
