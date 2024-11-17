@@ -11,12 +11,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlin.math.sqrt
+import com.nizarmah.igatha.sensor.Sensor as InternalSensor
 
 class AcceleratorSensor(
     context: Context,
     override val threshold: Double,
     private val updateInterval: Int // in microseconds
-) : com.nizarmah.igatha.sensor.Sensor<Sensor>, SensorEventListener {
+) : InternalSensor, SensorEventListener {
     private val sensorManager: SensorManager =
         context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 

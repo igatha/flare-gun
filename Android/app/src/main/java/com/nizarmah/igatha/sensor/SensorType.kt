@@ -16,7 +16,7 @@ interface AnySensor {
     fun stopUpdates()
 }
 
-interface Sensor<T> : AnySensor {
+interface Sensor : AnySensor {
     val sensor: Sensor?
     val threshold: Double
     val sensorType: SensorType
