@@ -2,28 +2,20 @@ package com.nizarmah.igatha.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
+import com.nizarmah.igatha.UserSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-    private val _disasterDetectionEnabled = MutableStateFlow(false)
+class SettingsViewModel(app: Application) : AndroidViewModel(app) {
+    private val _disasterDetectionEnabled = MutableStateFlow(
+        // Load the setting from user settings
+        UserSettings.isDisasterDetectionEnabled(app)
+    )
     val disasterDetectionEnabled: StateFlow<Boolean> = _disasterDetectionEnabled
-
-    private val sharedPreferences = application.getSharedPreferences("settings", Application.MODE_PRIVATE)
 
     fun setDisasterDetectionEnabled(enabled: Boolean) {
         _disasterDetectionEnabled.value = enabled
-        // Save the setting to SharedPreferences
-        viewModelScope.launch {
-            sharedPreferences.edit().putBoolean("disasterDetectionEnabled", enabled).apply()
-        }
-    }
-
-    init {
-        // Load the setting from SharedPreferences
-        val enabled = sharedPreferences.getBoolean("disasterDetectionEnabled", false)
-        _disasterDetectionEnabled.value = enabled
+        // Save the setting to user settings
+        UserSettings.setDisasterDetectionEnabled(getApplication(), enabled)
     }
 }

@@ -20,8 +20,8 @@ fun SettingsScreen(
 
     SettingsView(
         disasterDetectionEnabled = disasterDetectionEnabled,
-        onDisasterDetectionEnabledChanged = { isChecked ->
-            viewModel.setDisasterDetectionEnabled(isChecked)
+        onDisasterDetectionEnabledChanged = { enabled ->
+            viewModel.setDisasterDetectionEnabled(enabled)
         },
         onBackClick = onBackClick
     )
