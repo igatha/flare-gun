@@ -28,8 +28,8 @@ fun DeviceRowView(device: Device, onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
             .clickable { onClick() }
+            .padding(16.dp)
             .alpha(if (isStale) 0.4f else 1.0f),
         verticalAlignment = Alignment.CenterVertically
     ) {
