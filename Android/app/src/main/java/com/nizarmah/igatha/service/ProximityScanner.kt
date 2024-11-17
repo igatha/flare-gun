@@ -94,6 +94,8 @@ class ProximityScanner(private val context: Context) {
 
         val scanFilters = listOf(
             ScanFilter.Builder()
+                // TODO: Handle iOS overflow for bg advertisement
+                // See: http://www.davidgyoungtech.com/2020/05/07/hacking-the-overflow-area
                 .setServiceUuid(Constants.SOS_BEACON_SERVICE_UUID)
                 .build()
         )
