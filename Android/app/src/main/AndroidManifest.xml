@@ -26,9 +26,12 @@
         See: https://developer.android.com/develop/ui/views/notifications/notification-permission
     -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".IgathaApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -54,7 +57,8 @@
             android:name=".service.DisasterDetectionService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="location|connectedDevice" />
+            android:foregroundServiceType="health"
+            android:stopWithTask="false" />
     </application>
 
 </manifest>

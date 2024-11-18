@@ -14,6 +14,10 @@ class DisasterDetectionService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        val notification = createNotification()
+        startForeground(NOTIFICATION_ID, notification)
+
         // Initialize the DisasterDetector here
         disasterDetector = DisasterDetector(
             context = this,
@@ -22,12 +26,11 @@ class DisasterDetectionService : Service() {
             pressureThreshold = Constants.SENSOR_PRESSURE_THRESHOLD,
             eventTimeWindow = Constants.DISASTER_TEMPORAL_CORRELATION_TIME_WINDOW.toLong()
         )
+
         disasterDetector.startDetection()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification = createNotification()
-        startForeground(NOTIFICATION_ID, notification)
         return START_STICKY
     }
 

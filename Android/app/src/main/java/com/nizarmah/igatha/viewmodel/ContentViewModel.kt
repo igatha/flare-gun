@@ -15,6 +15,7 @@ import com.nizarmah.igatha.service.ProximityScanner
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 
 class ContentViewModel(app: Application) : AndroidViewModel(app) {
     private val emergencyManager = EmergencyManager(app)
@@ -27,10 +28,7 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     private val _activeAlert = MutableStateFlow<AlertType?>(null)
     val activeAlert: StateFlow<AlertType?> = _activeAlert.asStateFlow()
 
-    private val _disasterDetectionEnabled = MutableStateFlow(
-        UserSettings.isDisasterDetectionEnabled(app)
-    )
-    val disasterDetectionEnabled: StateFlow<Boolean> = _disasterDetectionEnabled.asStateFlow()
+    val disasterDetectionEnabled: StateFlow<Boolean> = UserSettings.disasterDetectionEnabled
 
     private val _devicesMap = MutableStateFlow<Map<String, Device>>(emptyMap())
     val devices: StateFlow<List<Device>> = _devicesMap.asStateFlow()
@@ -48,7 +46,7 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     init {
         // Observe disaster detection events
         viewModelScope.launch {
-            emergencyManager.disasterDetected.collect {
+            emergencyManager.disasterDetected.collectLatest {
                 _activeAlert.value = AlertType.DisasterDetected
             }
         }
