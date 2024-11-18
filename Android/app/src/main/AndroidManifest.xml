@@ -11,7 +11,7 @@
 
     <!-- Required for proximity scanner -->
     <!--
-        Android 11 and below need location for BLE
+        Android 11 and below require location for BLE
         See: https://source.android.com/docs/core/connect/bluetooth/ble#location-scanning
     -->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
@@ -19,6 +19,14 @@
 
     <!-- Required for siren player audio -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- Required for disaster detection to run in the background -->
+    <!--
+        Android 13 and above require notification permission
+        See: https://developer.android.com/develop/ui/views/notifications/notification-permission
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -41,6 +49,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.DisasterDetectionService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location|connectedDevice" />
     </application>
 
 </manifest>

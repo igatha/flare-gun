@@ -3,6 +3,7 @@ package com.nizarmah.igatha.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.nizarmah.igatha.UserSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,8 +22,15 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     val isSOSAvailable: StateFlow<Boolean> = emergencyManager.isSOSAvailable
     val isSOSActive: StateFlow<Boolean> = emergencyManager.isSOSActive
 
+    val isDetectorActive: StateFlow<Boolean> = emergencyManager.isDetectorActive
+
     private val _activeAlert = MutableStateFlow<AlertType?>(null)
     val activeAlert: StateFlow<AlertType?> = _activeAlert.asStateFlow()
+
+    private val _disasterDetectionEnabled = MutableStateFlow(
+        UserSettings.isDisasterDetectionEnabled(app)
+    )
+    val disasterDetectionEnabled: StateFlow<Boolean> = _disasterDetectionEnabled.asStateFlow()
 
     private val _devicesMap = MutableStateFlow<Map<String, Device>>(emptyMap())
     val devices: StateFlow<List<Device>> = _devicesMap.asStateFlow()
@@ -38,6 +46,24 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     private val proximityScanner = ProximityScanner(app)
 
     init {
+        // Observe disaster detection events
+        viewModelScope.launch {
+            emergencyManager.disasterDetected.collect {
+                _activeAlert.value = AlertType.DisasterDetected
+            }
+        }
+
+        // Start or stop the detector based on the setting
+        viewModelScope.launch {
+            disasterDetectionEnabled.collect { enabled ->
+                if (enabled) {
+                    emergencyManager.startDetector()
+                } else {
+                    emergencyManager.stopDetector()
+                }
+            }
+        }
+
         // Observe proximity scanner's scanned devices
         viewModelScope.launch {
             proximityScanner.scannedDevices.collect { device ->
@@ -45,6 +71,7 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
 
+        // Start or stop the scanner based on availability
         viewModelScope.launch {
             proximityScanner.isAvailable.collect { isAvailable ->
                 if (!isAvailable) {
@@ -74,14 +101,6 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun startDetector() {
-        // TODO: Add logic
-    }
-
-    fun stopDetector() {
-        // TODO: Add logic
-    }
-
     fun startSOS() {
         viewModelScope.launch {
             emergencyManager.startSOS()
@@ -105,6 +124,24 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     fun dismissAlert() {
         _activeAlert.value = null
     }
+
+    fun handleDisasterResponse(response: DisasterResponse) {
+        when (response) {
+            DisasterResponse.ImOkay -> {
+                stopSOS()
+                dismissAlert()
+            }
+            DisasterResponse.NeedHelp -> {
+                startSOS()
+                dismissAlert()
+            }
+        }
+    }
+}
+
+enum class DisasterResponse {
+    ImOkay,
+    NeedHelp
 }
 
 sealed class AlertType(val id: Int) {

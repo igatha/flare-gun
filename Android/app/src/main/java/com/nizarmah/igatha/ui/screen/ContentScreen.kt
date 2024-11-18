@@ -74,6 +74,9 @@ fun ContentScreen() {
                 onDismissAlert = {
                     viewModel.dismissAlert()
                 },
+                onDisasterResponse = { response ->
+                    viewModel.handleDisasterResponse(response)
+                },
                 onSettingsClick = {
                     navController.navigate("settings")
                 },
