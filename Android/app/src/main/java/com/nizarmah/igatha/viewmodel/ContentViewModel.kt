@@ -1,34 +1,33 @@
 package com.nizarmah.igatha.viewmodel
 
 import android.app.Application
+import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.nizarmah.igatha.Constants
 import com.nizarmah.igatha.UserSettings
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import com.nizarmah.igatha.model.Device
-import com.nizarmah.igatha.service.EmergencyManager
+import com.nizarmah.igatha.service.EmergencyService
 import com.nizarmah.igatha.service.ProximityScanner
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
+import com.nizarmah.igatha.state.SOSState
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class ContentViewModel(app: Application) : AndroidViewModel(app) {
-    private val emergencyManager = EmergencyManager(app)
 
-    val isSOSAvailable: StateFlow<Boolean> = emergencyManager.isSOSAvailable
-    val isSOSActive: StateFlow<Boolean> = emergencyManager.isSOSActive
+    // Disaster detection setting from UserSettings
+    val disasterDetectionEnabled: StateFlow<Boolean> = UserSettings.disasterDetectionEnabled
 
-    val isDetectorActive: StateFlow<Boolean> = emergencyManager.isDetectorActive
+    // SOS state
+    val isSOSAvailable: StateFlow<Boolean> = SOSState.isAvailable
+    val isSOSActive: StateFlow<Boolean> = SOSState.isActive
 
+    // Active alert state
     private val _activeAlert = MutableStateFlow<AlertType?>(null)
     val activeAlert: StateFlow<AlertType?> = _activeAlert.asStateFlow()
 
-    val disasterDetectionEnabled: StateFlow<Boolean> = UserSettings.disasterDetectionEnabled
+    // ProximityScanner and devices list
+    private val proximityScanner = ProximityScanner(getApplication())
 
     private val _devicesMap = MutableStateFlow<Map<String, Device>>(emptyMap())
     val devices: StateFlow<List<Device>> = _devicesMap.asStateFlow()
@@ -41,23 +40,14 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
             emptyList()
         )
 
-    private val proximityScanner = ProximityScanner(app)
-
     init {
-        // Observe disaster detection events
-        viewModelScope.launch {
-            emergencyManager.disasterDetected.collectLatest {
-                _activeAlert.value = AlertType.DisasterDetected
-            }
-        }
-
-        // Start or stop the detector based on the setting
+        // Start or stop the EmergencyService based on the disaster detection setting
         viewModelScope.launch {
             disasterDetectionEnabled.collect { enabled ->
                 if (enabled) {
-                    emergencyManager.startDetector()
+                    startEmergencyService()
                 } else {
-                    emergencyManager.stopDetector()
+                    stopEmergencyService()
                 }
             }
         }
@@ -72,50 +62,52 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
         // Start or stop the scanner based on availability
         viewModelScope.launch {
             proximityScanner.isAvailable.collect { isAvailable ->
-                if (!isAvailable) {
-                    proximityScanner.stopScanning()
-                } else {
+                if (isAvailable) {
                     proximityScanner.startScanning()
+                } else {
+                    proximityScanner.stopScanning()
                 }
             }
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        proximityScanner.deinit()
-        emergencyManager.deinit()
+    private fun startEmergencyService() {
+        val context = getApplication<Application>()
+        val serviceIntent = Intent(context, EmergencyService::class.java)
+        context.startForegroundService(serviceIntent)
     }
 
-    private fun updateDevice(device: Device) {
-        _devicesMap.update { currentMap ->
-            val updatedMap = currentMap.toMutableMap()
-            if (!updatedMap.containsKey(device.id)) {
-                updatedMap[device.id] = device
-            } else {
-                updatedMap[device.id]?.update(device.rssi)
-            }
-            updatedMap
-        }
+    private fun stopEmergencyService() {
+        val context = getApplication<Application>()
+        val serviceIntent = Intent(context, EmergencyService::class.java)
+        context.stopService(serviceIntent)
     }
 
     fun startSOS() {
-        viewModelScope.launch {
-            emergencyManager.startSOS()
-
-            dismissAlert()
+        if (!isSOSAvailable.value || isSOSActive.value) {
+            return
         }
+
+        val context = getApplication<Application>()
+        val intent = Intent(context, EmergencyService::class.java).apply {
+            action = Constants.ACTION_START_SOS
+        }
+        context.startService(intent)
     }
 
     fun stopSOS() {
-        viewModelScope.launch {
-            emergencyManager.stopSOS()
-
-            dismissAlert()
+        val context = getApplication<Application>()
+        val intent = Intent(context, EmergencyService::class.java).apply {
+            action = Constants.ACTION_STOP_SOS
         }
+        context.startService(intent)
     }
 
     fun showSOSConfirmation() {
+        if (!isSOSAvailable.value || isSOSActive.value) {
+            return
+        }
+
         _activeAlert.value = AlertType.SOSConfirmation
     }
 
@@ -123,26 +115,20 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
         _activeAlert.value = null
     }
 
-    fun handleDisasterResponse(response: DisasterResponse) {
-        when (response) {
-            DisasterResponse.ImOkay -> {
-                stopSOS()
-                dismissAlert()
-            }
-            DisasterResponse.NeedHelp -> {
-                startSOS()
-                dismissAlert()
-            }
+    private fun updateDevice(device: Device) {
+        _devicesMap.update { currentMap ->
+            val updatedMap = currentMap.toMutableMap()
+            updatedMap[device.id] = device
+            updatedMap
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        proximityScanner.deinit()
     }
 }
 
-enum class DisasterResponse {
-    ImOkay,
-    NeedHelp
-}
-
-sealed class AlertType(val id: Int) {
+sealed class AlertType(id: Int) {
     object SOSConfirmation : AlertType(1)
-    object DisasterDetected : AlertType(2)
 }

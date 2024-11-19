@@ -21,7 +21,6 @@ import com.nizarmah.igatha.ui.theme.IgathaTheme
 import com.nizarmah.igatha.ui.theme.Red
 import com.nizarmah.igatha.model.Device
 import com.nizarmah.igatha.viewmodel.AlertType
-import com.nizarmah.igatha.viewmodel.DisasterResponse
 import java.util.Date
 import java.util.UUID
 
@@ -35,7 +34,6 @@ fun ContentView(
     onSOSClick: () -> Unit,
     onConfirmSOS: () -> Unit,
     onDismissAlert: () -> Unit,
-    onDisasterResponse: (DisasterResponse) -> Unit,
     onSettingsClick: () -> Unit,
     onDeviceClick: (Device) -> Unit
 ) {
@@ -105,33 +103,6 @@ fun ContentView(
                     }
                 )
             }
-            is AlertType.DisasterDetected -> {
-                AlertDialog(
-                    onDismissRequest = {
-                        onDisasterResponse(DisasterResponse.ImOkay)
-                    },
-                    title = { Text("Disaster Detected") },
-                    text = { Text("Are you okay?") },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                onDisasterResponse(DisasterResponse.ImOkay)
-                            }
-                        ) {
-                            Text("I'm Okay")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                onDisasterResponse(DisasterResponse.NeedHelp)
-                            }
-                        ) {
-                            Text("Need Help")
-                        }
-                    }
-                )
-            }
         }
     }
 }
@@ -195,7 +166,6 @@ fun ContentViewPreview() {
             onSOSClick = {},
             onConfirmSOS = {},
             onDismissAlert = {},
-            onDisasterResponse = {},
             onSettingsClick = {},
             onDeviceClick = { device -> }
         )

@@ -26,7 +26,16 @@ object Constants {
     const val DISASTER_TEMPORAL_CORRELATION_TIME_WINDOW: Double = 1.5
     // grace period (seconds) before an incident response is triggered
     const val DISASTER_RESPONSE_GRACE_PERIOD: Double = 120.0
-    const val DISASTER_RESPONSE_NOTIFICATION_ID: String = "DISASTER_RESPONSE"
+
+    const val DISASTER_MONITORING_NOTIFICATION_ID: Int = 1
+    const val DISASTER_MONITORING_NOTIFICATION_KEY: String = "DISASTER_MONITORING"
+    const val DISASTER_RESPONSE_NOTIFICATION_ID: Int = 2
+    const val DISASTER_RESPONSE_NOTIFICATION_KEY: String = "DISASTER_RESPONSE"
+    const val DISTRESS_ACTIVE_NOTIFICATION_ID: Int = 3
+    const val DISTRESS_ACTIVE_NOTIFICATION_KEY: String = "DISTRESS_ACTIVE"
+
+    const val ACTION_START_SOS: String = "com.nizarmah.igatha.actions.START_SOS"
+    const val ACTION_STOP_SOS: String = "com.nizarmah.igatha.actions.STOP_SOS"
 
     // TODO: Add remaining constants
 }

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 object UserSettings {
-    private val _disasterDetectionEnabled = MutableStateFlow(false)
+    private val _disasterDetectionEnabled = MutableStateFlow(true)
     val disasterDetectionEnabled: StateFlow<Boolean> = _disasterDetectionEnabled.asStateFlow()
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -16,13 +16,13 @@ object UserSettings {
         sharedPreferences = getSharedPreferences(context)
 
         // Initialize the StateFlow with the current value
-        val enabled = sharedPreferences.getBoolean(Constants.DISASTER_DETECTION_ENABLED_KEY, false)
+        val enabled = sharedPreferences.getBoolean(Constants.DISASTER_DETECTION_ENABLED_KEY, true)
         _disasterDetectionEnabled.value = enabled
 
         // Listen for changes in SharedPreferences
         sharedPreferences.registerOnSharedPreferenceChangeListener { prefs, key ->
             if (key == Constants.DISASTER_DETECTION_ENABLED_KEY) {
-                val newValue = prefs.getBoolean(key, false)
+                val newValue = prefs.getBoolean(key, true)
                 _disasterDetectionEnabled.value = newValue
             }
         }
