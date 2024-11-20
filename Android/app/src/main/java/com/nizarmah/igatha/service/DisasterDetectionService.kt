@@ -12,23 +12,14 @@ class DisasterDetectionService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    private lateinit var disasterDetector: DisasterDetector
+    private val emergencyManager = EmergencyManager.getInstance(this)
 
     private var confirmationJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize DisasterDetector with appropriate thresholds and time window
-        disasterDetector = DisasterDetector(
-            context = this,
-            accelerationThreshold = Constants.SENSOR_ACCELERATION_THRESHOLD,
-            rotationThreshold = Constants.SENSOR_ROTATION_THRESHOLD,
-            pressureThreshold = Constants.SENSOR_PRESSURE_THRESHOLD,
-            eventTimeWindow = Constants.DISASTER_TEMPORAL_CORRELATION_TIME_WINDOW.toLong()
-        )
-
-        disasterDetector.startDetection()
+        emergencyManager.startDetector()
 
         // Start the service in the foreground with a low-priority notification
         val notification = createNotification()
@@ -126,8 +117,7 @@ class DisasterDetectionService : Service() {
         super.onDestroy()
         // Clean up resources
         cancelConfirmationTimer()
-        disasterDetector.stopDetection()
-        disasterDetector.deinit()
+        emergencyManager.stopDetector()
         scope.cancel()
     }
 

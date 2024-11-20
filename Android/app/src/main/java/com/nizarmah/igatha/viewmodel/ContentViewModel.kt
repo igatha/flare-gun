@@ -5,27 +5,26 @@ import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.nizarmah.igatha.Constants
-import com.nizarmah.igatha.UserSettings
 import com.nizarmah.igatha.model.Device
 import com.nizarmah.igatha.service.DisasterDetectionService
+import com.nizarmah.igatha.service.EmergencyManager
 import com.nizarmah.igatha.service.ProximityScanner
 import com.nizarmah.igatha.service.SOSService
-import com.nizarmah.igatha.state.SOSState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ContentViewModel(app: Application) : AndroidViewModel(app) {
 
+    private val emergencyManager = EmergencyManager.getInstance(getApplication())
+    private val proximityScanner = ProximityScanner(getApplication())
+
     // SOS state
-    val isSOSAvailable: StateFlow<Boolean> = SOSState.isAvailable
-    val isSOSActive: StateFlow<Boolean> = SOSState.isActive
+    val isSOSAvailable: StateFlow<Boolean> = emergencyManager.isSOSAvailable
+    val isSOSActive: StateFlow<Boolean> = emergencyManager.isSOSActive
 
     // Active alert state
     private val _activeAlert = MutableStateFlow<AlertType?>(null)
     val activeAlert: StateFlow<AlertType?> = _activeAlert.asStateFlow()
-
-    // ProximityScanner and devices list
-    private val proximityScanner = ProximityScanner(getApplication())
 
     private val _devicesMap = MutableStateFlow<Map<String, Device>>(emptyMap())
     val devices: StateFlow<List<Device>> = _devicesMap.asStateFlow()
@@ -39,9 +38,9 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
         )
 
     init {
-        // Observe the disaster detection setting
+        // Observe the disaster detection availability
         viewModelScope.launch {
-            UserSettings.disasterDetectionEnabled.collect { enabled ->
+            emergencyManager.isDetectorAvailable.collect { enabled ->
                 if (enabled) {
                     startDisasterDetectionService()
                 } else {

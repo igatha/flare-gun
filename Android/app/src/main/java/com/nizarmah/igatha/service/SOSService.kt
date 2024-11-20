@@ -6,63 +6,33 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.nizarmah.igatha.Constants
 import com.nizarmah.igatha.R
-import com.nizarmah.igatha.state.SOSState
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.combine
 
 class SOSService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    private lateinit var sosBeacon: SOSBeacon
-    private lateinit var sirenPlayer: SirenPlayer
+    private val emergencyManager = EmergencyManager.getInstance(this)
 
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize SOSBeacon and SirenPlayer
-        sosBeacon = SOSBeacon(this)
-        sirenPlayer = SirenPlayer(this)
-
-        // Start collecting availability states
-        scope.launch {
-            combine(
-                sosBeacon.isAvailable,
-                sirenPlayer.isAvailable
-            ) { beaconAvailable, sirenAvailable ->
-                beaconAvailable && sirenAvailable
-            }.collect { isAvailable ->
-                SOSState.setAvailable(isAvailable)
-            }
-        }
-
-        // Start SOS procedures
         startSOS()
     }
 
     private fun startSOS() {
-        // Start SOS procedures
-        sosBeacon.startBroadcasting()
-        sirenPlayer.startSiren()
+        emergencyManager.startSOS()
 
         // Show notification with "Stop SOS" action
         showSOSNotification()
-
-        // Update SOS state
-        SOSState.setActive(true)
     }
 
     private fun stopSOS() {
-        // Stop SOS procedures
-        sosBeacon.stopBroadcasting()
-        sirenPlayer.stopSiren()
+        emergencyManager.stopSOS()
 
         // Cancel SOS notification
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(Constants.DISTRESS_ACTIVE_NOTIFICATION_ID)
-
-        // Update SOS state
-        SOSState.setActive(false)
 
         // Stop the service
         stopSelf()
@@ -106,8 +76,6 @@ class SOSService : Service() {
         super.onDestroy()
         // Clean up resources
         stopSOS()
-        sosBeacon.deinit()
-        sirenPlayer.deinit()
         scope.cancel()
     }
 

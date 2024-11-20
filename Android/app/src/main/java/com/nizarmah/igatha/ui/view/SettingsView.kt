@@ -59,7 +59,7 @@ fun SettingsView(
                                 )
 
                                 Text(
-                                    text = "Detects disasters and sends SOS when the app is not in use. This requires location permission. This may increase battery consumption.",
+                                    text = "Detects disasters and sends SOS when the app is not in use. This may increase battery consumption.",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.secondary
                                 )
