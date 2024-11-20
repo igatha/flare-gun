@@ -34,6 +34,7 @@ object Constants {
     const val DISTRESS_ACTIVE_NOTIFICATION_ID: Int = 3
     const val DISTRESS_ACTIVE_NOTIFICATION_KEY: String = "DISTRESS_ACTIVE"
 
+    const val ACTION_IGNORE_ALERT: String = "com.nizarmah.igatha.actions.IGNORE_ALERT"
     const val ACTION_START_SOS: String = "com.nizarmah.igatha.actions.START_SOS"
     const val ACTION_STOP_SOS: String = "com.nizarmah.igatha.actions.STOP_SOS"
 

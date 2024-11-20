@@ -6,38 +6,18 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.nizarmah.igatha.Constants
 import com.nizarmah.igatha.R
-import com.nizarmah.igatha.state.SOSState
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.combine
 
-class EmergencyService : Service() {
+class DisasterDetectionService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private lateinit var disasterDetector: DisasterDetector
-    private lateinit var sosBeacon: SOSBeacon
-    private lateinit var sirenPlayer: SirenPlayer
 
     private var confirmationJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
-
-        // Initialize SOSBeacon and SirenPlayer
-        sosBeacon = SOSBeacon(this)
-        sirenPlayer = SirenPlayer(this)
-
-        // Start collecting availability states
-        scope.launch {
-            combine(
-                sosBeacon.isAvailable,
-                sirenPlayer.isAvailable
-            ) { beaconAvailable, sirenAvailable ->
-                beaconAvailable && sirenAvailable
-            }.collect { isAvailable ->
-                SOSState.setAvailable(isAvailable)
-            }
-        }
 
         // Initialize DisasterDetector with appropriate thresholds and time window
         disasterDetector = DisasterDetector(
@@ -48,12 +28,11 @@ class EmergencyService : Service() {
             eventTimeWindow = Constants.DISASTER_TEMPORAL_CORRELATION_TIME_WINDOW.toLong()
         )
 
+        disasterDetector.startDetection()
+
         // Start the service in the foreground with a low-priority notification
         val notification = createNotification()
         startForeground(Constants.DISASTER_MONITORING_NOTIFICATION_ID, notification)
-
-        // Start disaster detection
-        startDisasterDetection()
 
         // Observe disaster detection events
         scope.launch {
@@ -61,14 +40,6 @@ class EmergencyService : Service() {
                 onDisasterDetected()
             }
         }
-    }
-
-    private fun startDisasterDetection() {
-        disasterDetector.startDetection()
-    }
-
-    private fun stopDisasterDetection() {
-        disasterDetector.stopDetection()
     }
 
     private fun onDisasterDetected() {
@@ -85,15 +56,15 @@ class EmergencyService : Service() {
         val channelId = createHighPriorityNotificationChannel()
 
         // Intent for "I'm Okay" action
-        val imOkayIntent = Intent(this, EmergencyService::class.java).apply {
-            action = Constants.ACTION_STOP_SOS
+        val imOkayIntent = Intent(this, DisasterDetectionService::class.java).apply {
+            action = Constants.ACTION_IGNORE_ALERT
         }
         val imOkayPendingIntent = PendingIntent.getService(
             this, 0, imOkayIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         // Intent for "Need Help" action
-        val needHelpIntent = Intent(this, EmergencyService::class.java).apply {
+        val needHelpIntent = Intent(this, DisasterDetectionService::class.java).apply {
             action = Constants.ACTION_START_SOS
         }
         val needHelpPendingIntent = PendingIntent.getService(
@@ -119,7 +90,7 @@ class EmergencyService : Service() {
         confirmationJob?.cancel()
         confirmationJob = scope.launch {
             delay(Constants.DISASTER_RESPONSE_GRACE_PERIOD.toLong())
-            startSOS()
+            startSOSService()
         }
     }
 
@@ -128,77 +99,23 @@ class EmergencyService : Service() {
         confirmationJob = null
     }
 
-    private fun startSOS() {
-        // Start SOS procedures
-        sosBeacon.startBroadcasting()
-        sirenPlayer.startSiren()
-
-        // Show notification with "Stop SOS" action
-        showSOSNotification()
-
-        // Update SOS state
-        SOSState.setActive(true)
-    }
-
-    private fun stopSOS() {
-        // Stop SOS procedures
-        sosBeacon.stopBroadcasting()
-        sirenPlayer.stopSiren()
-
-        // Cancel SOS notification
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(Constants.DISTRESS_ACTIVE_NOTIFICATION_ID)
-
-        // Update SOS state
-        SOSState.setActive(false)
-    }
-
-    private fun showSOSNotification() {
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-        // Intent to stop SOS
-        val stopSOSIntent = Intent(this, EmergencyService::class.java).apply {
-            action = Constants.ACTION_STOP_SOS
-        }
-        val stopSOSPendingIntent = PendingIntent.getService(
-            this, 2, stopSOSIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // Build the notification
-        val notificationBuilder = NotificationCompat.Builder(this, Constants.DISTRESS_ACTIVE_NOTIFICATION_KEY)
-            .setSmallIcon(R.drawable.ic_notification_signaling)
-            .setContentTitle("Broadcasting SOS")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setOngoing(true)
-            .addAction(R.drawable.ic_stop_sos, "Stop", stopSOSPendingIntent)
-
-        // Show the notification
-        notificationManager.notify(Constants.DISTRESS_ACTIVE_NOTIFICATION_ID, notificationBuilder.build())
+    private fun startSOSService() {
+        val sosIntent = Intent(this, SOSService::class.java)
+        startForegroundService(sosIntent)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        cancelConfirmationTimer()
+        if (intent?.action != null) {
+            // Dismiss the alert notification
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(Constants.DISASTER_RESPONSE_NOTIFICATION_ID)
+        }
+
         when (intent?.action) {
             Constants.ACTION_START_SOS -> {
-                // Start SOS procedures
-                startSOS()
-
-                // Cancel any confirmation timers
-                cancelConfirmationTimer()
-
-                // Dismiss any existing alert notifications
-                val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.cancel(Constants.DISASTER_RESPONSE_NOTIFICATION_ID)
-            }
-            Constants.ACTION_STOP_SOS -> {
-                // Stop SOS procedures
-                stopSOS()
-
-                // User indicated they are okay
-                cancelConfirmationTimer()
-
-                // Dismiss the alert notification
-                val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.cancel(Constants.DISASTER_RESPONSE_NOTIFICATION_ID)
+                // Start SOS immediately
+                startSOSService()
             }
         }
 
@@ -208,11 +125,9 @@ class EmergencyService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         // Clean up resources
-        stopSOS()
-        stopDisasterDetection()
+        cancelConfirmationTimer()
+        disasterDetector.stopDetection()
         disasterDetector.deinit()
-        sosBeacon.deinit()
-        sirenPlayer.deinit()
         scope.cancel()
     }
 
@@ -233,8 +148,8 @@ class EmergencyService : Service() {
     }
 
     private fun createNotificationChannel(): String {
-        val channelId = Constants.DISTRESS_ACTIVE_NOTIFICATION_KEY
-        val channelName = "Emergency Service"
+        val channelId = Constants.DISASTER_MONITORING_NOTIFICATION_KEY
+        val channelName = "Disaster Detection Service"
         val channel = NotificationChannel(
             channelId,
             channelName,

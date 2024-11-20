@@ -54,7 +54,14 @@
         </activity>
 
         <service
-            android:name=".service.EmergencyService"
+            android:name=".service.DisasterDetectionService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="health"
+            android:stopWithTask="false" />
+
+        <service
+            android:name=".service.SOSService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="health"

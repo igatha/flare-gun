@@ -7,16 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.nizarmah.igatha.Constants
 import com.nizarmah.igatha.UserSettings
 import com.nizarmah.igatha.model.Device
-import com.nizarmah.igatha.service.EmergencyService
+import com.nizarmah.igatha.service.DisasterDetectionService
 import com.nizarmah.igatha.service.ProximityScanner
+import com.nizarmah.igatha.service.SOSService
 import com.nizarmah.igatha.state.SOSState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ContentViewModel(app: Application) : AndroidViewModel(app) {
-
-    // Disaster detection setting from UserSettings
-    val disasterDetectionEnabled: StateFlow<Boolean> = UserSettings.disasterDetectionEnabled
 
     // SOS state
     val isSOSAvailable: StateFlow<Boolean> = SOSState.isAvailable
@@ -41,13 +39,13 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
         )
 
     init {
-        // Start or stop the EmergencyService based on the disaster detection setting
+        // Observe the disaster detection setting
         viewModelScope.launch {
-            disasterDetectionEnabled.collect { enabled ->
+            UserSettings.disasterDetectionEnabled.collect { enabled ->
                 if (enabled) {
-                    startEmergencyService()
+                    startDisasterDetectionService()
                 } else {
-                    stopEmergencyService()
+                    stopDisasterDetectionService()
                 }
             }
         }
@@ -71,16 +69,30 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun startEmergencyService() {
+    private fun startDisasterDetectionService() {
         val context = getApplication<Application>()
-        val serviceIntent = Intent(context, EmergencyService::class.java)
+        val serviceIntent = Intent(context, DisasterDetectionService::class.java)
         context.startForegroundService(serviceIntent)
     }
 
-    private fun stopEmergencyService() {
+    private fun stopDisasterDetectionService() {
         val context = getApplication<Application>()
-        val serviceIntent = Intent(context, EmergencyService::class.java)
+        val serviceIntent = Intent(context, DisasterDetectionService::class.java)
         context.stopService(serviceIntent)
+    }
+
+    private fun startSOSService() {
+        val context = getApplication<Application>()
+        val serviceIntent = Intent(context, SOSService::class.java)
+        context.startForegroundService(serviceIntent)
+    }
+
+    private fun stopSOSService() {
+        val context = getApplication<Application>()
+        val serviceIntent = Intent(context, SOSService::class.java).apply {
+            action = Constants.ACTION_STOP_SOS
+        }
+        context.startService(serviceIntent)
     }
 
     fun startSOS() {
@@ -88,19 +100,11 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
 
-        val context = getApplication<Application>()
-        val intent = Intent(context, EmergencyService::class.java).apply {
-            action = Constants.ACTION_START_SOS
-        }
-        context.startService(intent)
+        startSOSService()
     }
 
     fun stopSOS() {
-        val context = getApplication<Application>()
-        val intent = Intent(context, EmergencyService::class.java).apply {
-            action = Constants.ACTION_STOP_SOS
-        }
-        context.startService(intent)
+        stopSOSService()
     }
 
     fun showSOSConfirmation() {
