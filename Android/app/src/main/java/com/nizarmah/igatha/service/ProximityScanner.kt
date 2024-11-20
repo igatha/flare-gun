@@ -114,6 +114,8 @@ class ProximityScanner(private val context: Context) {
     }
 
     fun stopScanning() {
+        if (!_isAvailable.value || !_isActive.value) return
+
         try {
             bluetoothLeScanner?.stopScan(scanCallback)
         } catch (e: SecurityException) {
