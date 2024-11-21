@@ -24,7 +24,7 @@ fun DeviceListView(devices: List<Device>, onDeviceClick: (Device) -> Unit) {
         item {
             Section (
                 header = "People seeking help",
-                footer = "Note: Distance is approximate and varies due to signal fluctuations. It is for general guidance only."
+                footer = "Note: Distance is approximate and varies due to signal fluctuations. It is for general guidance only. Proximity scanning requires location on Android 11 or lower."
             ) {
                 if (devices.isEmpty()) {
                     Text(
