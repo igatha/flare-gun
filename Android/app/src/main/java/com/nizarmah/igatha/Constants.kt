@@ -27,6 +27,9 @@ object Constants {
     // grace period (seconds) before an incident response is triggered
     const val DISASTER_RESPONSE_GRACE_PERIOD: Double = 120.0
 
+    // percentage of how much a new value should affect the old value
+    const val RSSI_EXPONENTIAL_MOVING_AVERAGE_SMOOTHING_FACTOR: Double = 0.18
+
     const val DISASTER_MONITORING_NOTIFICATION_ID: Int = 1
     const val DISASTER_MONITORING_NOTIFICATION_KEY: String = "DISASTER_MONITORING"
     const val DISASTER_RESPONSE_NOTIFICATION_ID: Int = 2
@@ -37,6 +40,4 @@ object Constants {
     const val ACTION_IGNORE_ALERT: String = "com.nizarmah.igatha.actions.IGNORE_ALERT"
     const val ACTION_START_SOS: String = "com.nizarmah.igatha.actions.START_SOS"
     const val ACTION_STOP_SOS: String = "com.nizarmah.igatha.actions.STOP_SOS"
-
-    // TODO: Add remaining constants
 }

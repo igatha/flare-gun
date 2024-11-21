@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
+import com.nizarmah.igatha.Constants
 
 fun UUID.shortName(): String {
     return this.toString().substring(0, 8).uppercase()
@@ -33,8 +34,7 @@ data class Device(
         val newRSSI = rssi
 
         // smoothing factor
-        // TODO: Replace with constant
-        val alpha = 0.18
+        val alpha = Constants.RSSI_EXPONENTIAL_MOVING_AVERAGE_SMOOTHING_FACTOR
 
         // smoothen the RSSI with exponential moving average
         val smoothedRSSI = alpha * newRSSI + (1 - alpha) * oldRSSI

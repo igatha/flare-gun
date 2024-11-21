@@ -67,8 +67,6 @@ fun DeviceListViewPreview() {
     )
 
     IgathaTheme {
-        DeviceListView(devices = mockDevices) {
-            // TODO: Implement navigation to DeviceDetailView
-        }
+        DeviceListView(devices = mockDevices) {}
     }
 }
