@@ -7,6 +7,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import com.nizarmah.igatha.Constants
 import com.nizarmah.igatha.util.PermissionsManager
+import com.nizarmah.igatha.util.SettingsManager
 import kotlinx.coroutines.cancel
 
 class EmergencyManager private constructor(context: Context) {
@@ -41,23 +42,24 @@ class EmergencyManager private constructor(context: Context) {
         sosBeacon.isAvailable,
         sirenPlayer.isAvailable,
         PermissionsManager.sosPermitted
-    ) { beaconAvailable, sirenAvailable, sosPermitted ->
-        beaconAvailable && sirenAvailable && sosPermitted
+    ) { beacon, siren, permitted ->
+        beacon && siren && permitted
     }.stateIn(scope, SharingStarted.Eagerly, false)
 
     val isSOSActive: StateFlow<Boolean> = combine(
         sosBeacon.isActive,
         sirenPlayer.isActive
-    ) { beaconActive, sirenActive ->
-        beaconActive || sirenActive
+    ) { beacon, siren ->
+        beacon || siren
     }.stateIn(scope, SharingStarted.Eagerly, false)
 
     val isDetectorAvailable: StateFlow<Boolean> = combine(
         disasterDetector.isAvailable,
         isSOSAvailable,
+        SettingsManager.disasterDetectionEnabled,
         PermissionsManager.disasterDetectionPermitted
-    ) { detectorAvailable, sosAvailable, disasterDetectionPermitted ->
-        detectorAvailable && sosAvailable && disasterDetectionPermitted
+    ) { detector, sos, enabled, permitted ->
+        detector && sos && enabled && permitted
     }.stateIn(scope, SharingStarted.Eagerly, false)
     val isDetectorActive: StateFlow<Boolean> = disasterDetector.isActive
 

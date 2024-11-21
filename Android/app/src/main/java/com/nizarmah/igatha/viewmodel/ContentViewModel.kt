@@ -49,8 +49,8 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     init {
         // Observe the disaster detection availability
         viewModelScope.launch {
-            emergencyManager.isDetectorAvailable.collect { enabled ->
-                if (enabled) {
+            emergencyManager.isDetectorAvailable.collect { available ->
+                if (available) {
                     startDisasterDetectionService()
                 } else {
                     stopDisasterDetectionService()
@@ -67,8 +67,8 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
 
         // Start or stop the scanner based on availability
         viewModelScope.launch {
-            isProximityScanAvailable.collect { isAvailable ->
-                if (isAvailable) {
+            isProximityScanAvailable.collect { available ->
+                if (available) {
                     proximityScanner.startScanning()
                 } else {
                     proximityScanner.stopScanning()
