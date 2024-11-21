@@ -76,9 +76,30 @@ class DisasterDetector(
 
     private fun checkForIncident() {
         val currentTime = System.currentTimeMillis()
-        if (eventTimes.size < 3) return
 
-        if (eventTimes.values.all { currentTime - it <= eventTimeWindow }) {
+        if (
+            (barometerSensor.isAvailable &&
+                eventTimes.size < 3) ||
+            // Some android devices don't have barometers
+            (!barometerSensor.isAvailable &&
+                eventTimes.size < 2)
+        ) return
+
+        if (
+            (barometerSensor.isAvailable &&
+                eventTimes.values.all { currentTime - it <= eventTimeWindow }) ||
+            // If no barometer, apply aggressive filtering
+            (!barometerSensor.isAvailable &&
+                eventTimes.values.all { currentTime - it <= eventTimeWindow / 3.2 })
+        ) {
+            // Apply more aggressive filtering if barometer is missing
+            if (
+                !barometerSensor.isAvailable &&
+                eventTimes.values.all { currentTime - it > eventTimeWindow / 2 }
+            ) {
+                return
+            }
+
             // Disaster detected
             scope.launch {
                 DisasterEventBus.emitDisasterDetected()
