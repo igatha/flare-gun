@@ -1,0 +1,85 @@
+package com.nizarmah.igatha.util
+
+import android.Manifest
+import android.os.Build
+import kotlin.collections.plus
+
+object PermissionsHelper {
+    fun getSOSPermissions(): Array<String> {
+        var permissions = arrayOf(
+            // SOS Beacon
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            // Siren Player
+            Manifest.permission.MODIFY_AUDIO_SETTINGS
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions += arrayOf(
+                // SOS Beacon
+                Manifest.permission.BLUETOOTH_ADVERTISE
+            )
+        }
+
+        permissions += getServicePermissions()
+
+        return permissions
+    }
+
+    fun getProximityScanPermissions(): Array<String> {
+        var permissions = arrayOf(
+            // ProximityScanner
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+        )
+
+        // Android 11 or less require location permissions
+        // See: https://source.android.com/docs/core/connect/bluetooth/ble#location-scanning
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+            permissions += arrayOf(
+                // ProximityScanner
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        }
+
+        return permissions
+    }
+
+    fun getDisasterDetectionPermissions(): Array<String> {
+        var permissions = emptyArray<String>()
+
+        permissions += getServicePermissions()
+
+        return permissions
+    }
+
+    private fun getServicePermissions(): Array<String> {
+        var permissions = emptyArray<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            permissions += arrayOf(
+                Manifest.permission.FOREGROUND_SERVICE
+            )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions += arrayOf(
+                Manifest.permission.HIGH_SAMPLING_RATE_SENSORS
+            )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions += arrayOf(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            permissions += arrayOf(
+                Manifest.permission.FOREGROUND_SERVICE_HEALTH
+            )
+        }
+
+        return permissions
+    }
+}

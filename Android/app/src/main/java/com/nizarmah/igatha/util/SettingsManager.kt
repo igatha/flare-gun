@@ -1,12 +1,13 @@
-package com.nizarmah.igatha
+package com.nizarmah.igatha.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.nizarmah.igatha.Constants
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-object UserSettings {
+object SettingsManager {
     private val _disasterDetectionEnabled = MutableStateFlow(true)
     val disasterDetectionEnabled: StateFlow<Boolean> = _disasterDetectionEnabled.asStateFlow()
 

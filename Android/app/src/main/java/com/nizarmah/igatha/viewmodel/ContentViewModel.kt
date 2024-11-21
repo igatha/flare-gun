@@ -10,6 +10,7 @@ import com.nizarmah.igatha.service.DisasterDetectionService
 import com.nizarmah.igatha.service.EmergencyManager
 import com.nizarmah.igatha.service.ProximityScanner
 import com.nizarmah.igatha.service.SOSService
+import com.nizarmah.igatha.util.PermissionsManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -21,6 +22,14 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     // SOS state
     val isSOSAvailable: StateFlow<Boolean> = emergencyManager.isSOSAvailable
     val isSOSActive: StateFlow<Boolean> = emergencyManager.isSOSActive
+
+    // ProximityScanner state
+    val isProximityScanAvailable: StateFlow<Boolean> = combine(
+        proximityScanner.isAvailable,
+        PermissionsManager.proximityScanPermitted
+    ) { isAvailable, isPermitted ->
+        isAvailable && isPermitted
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     // Active alert state
     private val _activeAlert = MutableStateFlow<AlertType?>(null)
@@ -58,7 +67,7 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
 
         // Start or stop the scanner based on availability
         viewModelScope.launch {
-            proximityScanner.isAvailable.collect { isAvailable ->
+            isProximityScanAvailable.collect { isAvailable ->
                 if (isAvailable) {
                     proximityScanner.startScanning()
                 } else {

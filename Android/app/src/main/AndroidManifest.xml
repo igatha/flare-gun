@@ -2,33 +2,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Required for general BLE -->
+    <!-- ProximityScanner | SOSBeacon -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
-    <!-- Required for sos beacon advertisement -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-
-    <!-- Required for proximity scanner -->
-    <!--
-        Android 11 and below require location for BLE
-        See: https://source.android.com/docs/core/connect/bluetooth/ble#location-scanning
-    -->
+    <!-- ProximityScanner -->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- See: https://source.android.com/docs/core/connect/bluetooth/ble#location-scanning -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:maxSdkVersion="30" />
 
-    <!-- Required for siren player audio -->
+    <!-- SOSBeacon -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <!-- SirenPlayer -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
-    <!-- Required for disaster detection to run in the background -->
-    <!--
-        Android 13 and above require notification permission
-        See: https://developer.android.com/develop/ui/views/notifications/notification-permission
-    -->
+    <!-- SOSService | DisasterDetectionService -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
     <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- See: https://developer.android.com/develop/ui/views/notifications/notification-permission -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
+        android:minSdkVersion="33" />
 
     <application
         android:name=".IgathaApp"

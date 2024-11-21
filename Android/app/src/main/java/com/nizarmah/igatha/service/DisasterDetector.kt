@@ -2,7 +2,6 @@ package com.nizarmah.igatha.service
 
 import android.content.Context
 import com.nizarmah.igatha.Constants
-import com.nizarmah.igatha.UserSettings
 import com.nizarmah.igatha.sensor.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +37,8 @@ class DisasterDetector(
         updateInterval = Constants.SENSOR_UPDATE_INTERVAL
     )
 
-    val isAvailable: StateFlow<Boolean> = UserSettings.disasterDetectionEnabled
+    private val _isAvailable = MutableStateFlow(true)
+    val isAvailable: StateFlow<Boolean> = _isAvailable.asStateFlow()
 
     private val _isActive = MutableStateFlow(false)
     val isActive: StateFlow<Boolean> = _isActive.asStateFlow()

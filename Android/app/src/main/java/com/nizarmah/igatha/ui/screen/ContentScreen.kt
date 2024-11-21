@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +19,7 @@ import com.nizarmah.igatha.ui.view.DeviceDetailView
 import com.nizarmah.igatha.viewmodel.ContentViewModel
 
 @Composable
-fun ContentScreen() {
+fun ContentScreen(modifier: Modifier) {
     val navController = rememberNavController()
     val viewModel: ContentViewModel = viewModel()
 
@@ -28,6 +29,7 @@ fun ContentScreen() {
     val devices by viewModel.devices.collectAsState()
 
     NavHost(
+        modifier = modifier,
         navController = navController,
         startDestination = "home",
         enterTransition = {
