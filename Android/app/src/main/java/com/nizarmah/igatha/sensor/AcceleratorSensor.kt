@@ -15,7 +15,7 @@ import com.nizarmah.igatha.sensor.Sensor as InternalSensor
 
 class AcceleratorSensor(
     context: Context,
-    override val threshold: Double,
+    override val threshold: Double, // Threshold in g's
     private val updateInterval: Int // in microseconds
 ) : InternalSensor, SensorEventListener {
     private val sensorManager: SensorManager =
@@ -64,9 +64,8 @@ class AcceleratorSensor(
         val y = event.values[1]
         val z = event.values[2]
 
-        val totalAcceleration = sqrt(
-            x * x + y * y + z * z
-        )
+        // Normalize acceleration to g's
+        val totalAcceleration = sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH
 
         if (totalAcceleration > threshold) {
             val sensorEvent = SensorCapturedEvent(

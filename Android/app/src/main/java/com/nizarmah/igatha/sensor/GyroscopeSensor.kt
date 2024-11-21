@@ -15,7 +15,7 @@ import com.nizarmah.igatha.sensor.Sensor as InternalSensor
 
 class GyroscopeSensor(
     context: Context,
-    override val threshold: Double,
+    override val threshold: Double, // Threshold in rad/s
     private val updateInterval: Int // in microseconds
 ) : InternalSensor, SensorEventListener {
     private val sensorManager: SensorManager =
@@ -35,6 +35,9 @@ class GyroscopeSensor(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     override val events: SharedFlow<SensorCapturedEvent> = _events.asSharedFlow()
+
+    private var filteredRotationRate = 0.0
+    private val alpha = 0.8 // Low-pass filter coefficient
 
     override fun startUpdates() {
         if (!isAvailable) {
@@ -64,11 +67,12 @@ class GyroscopeSensor(
         val y = event.values[1]
         val z = event.values[2]
 
-        val totalRotationRate = sqrt(
-            x * x + y * y + z * z
-        )
+        val rawRotationRate = sqrt(x * x + y * y + z * z)
 
-        if (totalRotationRate > threshold) {
+        // Apply low-pass filter
+        filteredRotationRate = alpha * filteredRotationRate + (1 - alpha) * rawRotationRate
+
+        if (filteredRotationRate > threshold) {
             val sensorEvent = SensorCapturedEvent(
                 sensorType = sensorType,
                 eventTime = event.timestamp
