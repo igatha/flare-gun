@@ -8,6 +8,7 @@
 
     <!-- ProximityScanner -->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <!-- See: https://source.android.com/docs/core/connect/bluetooth/ble#location-scanning -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
         android:maxSdkVersion="30" />

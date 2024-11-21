@@ -33,8 +33,14 @@ object PermissionsHelper {
             Manifest.permission.BLUETOOTH_ADMIN,
         )
 
-        // Android 11 or less require location permissions
-        // See: https://source.android.com/docs/core/connect/bluetooth/ble#location-scanning
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions += arrayOf(
+                // ProximityScanner
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT,
+            )
+        }
+
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
             permissions += arrayOf(
                 // ProximityScanner
