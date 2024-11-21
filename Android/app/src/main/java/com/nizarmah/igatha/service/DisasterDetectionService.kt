@@ -80,7 +80,7 @@ class DisasterDetectionService : Service() {
     private fun startConfirmationTimer() {
         confirmationJob?.cancel()
         confirmationJob = scope.launch {
-            delay(Constants.DISASTER_RESPONSE_GRACE_PERIOD.toLong())
+            delay((Constants.DISASTER_RESPONSE_GRACE_PERIOD * 1000).toLong())
             startSOSService()
         }
     }
