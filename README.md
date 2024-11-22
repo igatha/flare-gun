@@ -2,6 +2,46 @@
 
 Igatha is an open-source SOS signaling and recovery app designed for war zones and disaster areas, enabling offline emergency communication when traditional networks fail.
 
+## Status
+
+- **iOS**: [v1.0](https://apps.apple.com/us/app/igatha/id6737691452)
+- **Android**: [v1.0](https://play.google.com/store/apps/details?id=com.nizarmah.igatha)
+
+## Usage
+
+### Signaling
+
+#### Manual
+
+1. Open the app
+1. Grant permissions
+1. Enable bluetooth
+1. Click "Send SOS"
+
+#### Automatic
+
+1. Open the app
+1. Grant permissions
+1. Enable bluetooth
+1. Click the gear icon in the app's top right corner
+1. Enable "Disaster Detection"
+
+The app will now run in the background to detect disasters.
+If it does, you'll be notified with an "Are you okay?" notification.
+
+If you respond with "Need help" or don't respond in 2 minutes, it will signal SOS.
+If you respond with "I'm okay", it will ignore the disaster.
+
+### Recovery
+
+1. Open the app
+1. Grant permissions
+1. Enable bluetooth
+1. If you're on Android 11 or lower, enable location
+1. Check "People seeking help"
+1. Walk in the direction where the distance gets lower
+1. Stay attentive for any siren playing
+
 ## How It Works
 
 Igatha uses Bluetooth Low Energy (BLE) technology to:
@@ -16,11 +56,6 @@ The app works completely offline to prevent manipulation and uses BLE instead of
 - This is a Minimum Viable Product (MVP) with significant room for improvement
 - Testing has been limited to controlled environments
 - While not guaranteed to work in all scenarios, it provides a potential lifeline where no alternatives exist
-
-## Status
-
-- **iOS**: [v1.0](https://apps.apple.com/us/app/igatha/id6737691452)
-- **Android**: [v1.0](https://play.google.com/store/apps/details?id=com.nizarmah.igatha)
 
 ## Why Open Source?
 
