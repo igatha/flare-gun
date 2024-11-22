@@ -20,7 +20,7 @@ The app works completely offline to prevent manipulation and uses BLE instead of
 ## Status
 
 - **iOS**: [v1.0](https://apps.apple.com/us/app/igatha/id6737691452)
-- **Android**: [v1.0](https://play.google.com/store/apps/details?id=com.nizarmah.igatha) (pending review)
+- **Android**: [v1.0](https://play.google.com/store/apps/details?id=com.nizarmah.igatha)
 
 ## Why Open Source?
 
