@@ -21,8 +21,12 @@
 - **Data Handling:** No persistent storage of detected devices. All Bluetooth interactions are handled locally without data retention or transmission.
 
 ### 3. Location Services
-- **Background Location Permission:** Required to enable sensor monitoring for automated disaster detection.
+- **Background Location Permission:** Required to enable sensor monitoring for automated disaster detection on iOS.
+- **Bluetooth Scanning Permission:** Required to enable bluetooth scanning for nearby devices on Android 11  and lower.
 - **Data Handling:** We do **not** transmit or store GPS coordinates or perform location tracking. Location permissions are solely used to facilitate sensor-based emergency detection locally on your device.
+
+### 4. Foreground Services
+- **Background Permission:** Required to enable sensor monitoring for automated disaster detection and signaling SOS in the background on Android.
 
 ## Data Privacy
 
@@ -34,8 +38,9 @@
 ## Permissions Used
 
 - **Bluetooth:** Enables local SOS beacon transmission and detection.
-- **Location:** Required for background sensor operations to facilitate automated emergency detection.
+- **Location:** Required for background sensor operations to facilitate automated emergency detection on iOS. Required for bluetooth scanning on Android 11 and lower.
 - **Motion/Sensors:** Access to device motion and sensors for local disaster detection.
+- **Foreground Services:** Required to enable sensor monitoring for automated disaster detection and signaling SOS in the background on Android.
 
 ## Open Source Commitment
 
