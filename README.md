@@ -51,6 +51,40 @@ Igatha uses Bluetooth Low Energy (BLE) technology to:
 
 The app works completely offline to prevent manipulation and uses BLE instead of GPS to avoid signal jamming. Location permissions are required to enable background sensor monitoring for automated disaster detection.
 
+### Disaster detection
+
+The app uses three sensors to detect disasters:
+1. Accelerometer
+2. Barometer
+3. Gyroscope
+
+Unfortunately, barometers aren't available on all devices, which can increase the false positive rate.
+
+When a sudden change in all active sensors is detected at the same time, in a very short time, it assumes a disaster has occurred.
+
+Then, it will notify you with an "Are you okay?" notification.
+
+If you respond with "Need help" or don't respond in 2 minutes, it will signal SOS.
+If you respond with "I'm okay", it will ignore the disaster.
+
+### SOS signal
+
+The SOS signal is a combination of:
+1. Bluetooth low energy advertisement
+2. Siren sound from the device's speaker
+
+You can stop the SOS signal from the notification or the application.
+In case the BLE signal doesn't travel far enough, the siren will help you be heard.
+
+### Signal distance
+
+The signal distance is retrieved from the device's Bluetooth signal strength.
+This is calculated with a "drop-off" assuming the signal is weakened after traveling through solid objects.
+
+The signal is not accurate and should only be used to get a general direction.
+
+For proper accuracy, third party bluetooth receivers can be used.
+
 ## Important Notes
 
 - This is a Minimum Viable Product (MVP) with significant room for improvement
@@ -59,7 +93,7 @@ The app works completely offline to prevent manipulation and uses BLE instead of
 
 ## Why Open Source?
 
-Igatha is open-sourced under the [GNU General Public License v3.0](LICENSE) because:
+Igatha is open-sourced for:
 
 1. **Transparency**: In crisis situations, people need to trust the tools they use. Open source allows anyone to verify the app's security and privacy measures.
 
