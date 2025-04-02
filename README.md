@@ -7,91 +7,92 @@ Igatha is an open-source SOS signaling and recovery app designed for war zones a
 - **iOS**: [v1.0](https://apps.apple.com/us/app/igatha/id6737691452)
 - **Android**: [v1.0](https://play.google.com/store/apps/details?id=com.nizarmah.igatha)
 
-## Usage
+## Quickstart
 
-### Signaling
+1. Install the app using the links above.
+1. Open the app and grant the necessary permissions.
 
-#### Manual
+## How to use Igatha
 
-1. Open the app
-1. Grant permissions
-1. Enable bluetooth
-1. Click "Send SOS"
+### Sending SOS signals (distress mode)
 
-#### Automatic
+#### Manual signaling
 
-1. Open the app
-1. Grant permissions
-1. Enable bluetooth
-1. Click the gear icon in the app's top right corner
-1. Enable "Disaster Detection"
+1. Open Igatha.
+1. Ensure bluetooth is enabled.
+1. Tap "_Send SOS_".
 
-The app will now run in the background to detect disasters.
-If it does, you'll be notified with an "Are you okay?" notification.
+#### Automatic signaling
 
-If you respond with "Need help" or don't respond in 2 minutes, it will signal SOS.
-If you respond with "I'm okay", it will ignore the disaster.
+1. Open Igatha.
+1. Tap the gear icon (top right).
+1. Enable "_Disaster Detection_".
 
-### Recovery
+With disaster detection, Igatha will now run in the background, monitoring your device's sensors.
+When a potential disaster is detected, you'll receive an "_Are you okay?_" notification:
+* If you respond with "_Need help_" or don't respond in 2 minutes, it will automatically broadcast an SOS.
+* If you respond with "_I'm okay_", it will ignore the event.
 
-1. Open the app
-1. Grant permissions
-1. Enable bluetooth
-1. If you're on Android 11 or lower, enable location
-1. Check "People seeking help"
-1. Walk in the direction where the distance gets lower
-1. Stay attentive for any siren playing
+### Helping others (recovery mode)
 
-## How It Works
+If you're safe and want to help others:
 
-Igatha uses Bluetooth Low Energy (BLE) technology to:
-1. Broadcast SOS signals
-2. Scan for nearby signals
-3. Estimate approximate distance
+1. Open Igatha.
+1. Ensure bluetooth is enabled (on Android 11 or lower, also enable Location).
+1. Check "_People seeking help_".
+1. Move towards locations where displayed distances decrease.
+1. Listen carefully for audible sirens.
 
-The app works completely offline to prevent manipulation and uses BLE instead of GPS to avoid signal jamming. Location permissions are required to enable background sensor monitoring for automated disaster detection.
+## How Igatha works
 
-### Disaster detection
+### Bluetooth low energy (BLE)
 
-The app uses three sensors to detect disasters:
-1. Accelerometer
-2. Barometer
-3. Gyroscope
+Igatha uses Bluetooth Low Energy (BLE) to:
+1. Broadcast SOS signals.
+1. Scan for nearby SOS broadcasts.
+1. Estimate approximate distance to the signal source based on signal strength.
 
-Unfortunately, barometers aren't available on all devices, which can increase the false positive rate.
+No internet or GPS is required, preventing signal jamming or manipulation.
 
-When a sudden change in all active sensors is detected at the same time, in a very short time, it assumes a disaster has occurred.
+### SOS signal composition
 
-Then, it will notify you with an "Are you okay?" notification.
+The SOS signal combines:
+1. BLE advertisement: broadcasts a pseudonymized identifier.
+1. Audible siren: generated via device speakers to help responders locate you.
 
-If you respond with "Need help" or don't respond in 2 minutes, it will signal SOS.
-If you respond with "I'm okay", it will ignore the disaster.
+Responders can toggle additional signals, like flashlight or vibration, remotely. (planned feature)
 
-### SOS signal
+### Disaster detection sensors
 
-The SOS signal is a combination of:
-1. Bluetooth low energy advertisement
-2. Siren sound from the device's speaker
+Igatha detects disasters using device sensors:
+1. Accelerometer: measures sudden motion changes.
+1. Gyroscope: detect orientation and rotation shifts.
+1. Barometer (if available): detects atmospheric pressure changes, reducing false positives.
 
-You can stop the SOS signal from the notification or the application.
-In case the BLE signal doesn't travel far enough, the siren will help you be heard.
+Disaster detection triggers when multiple sensors simultaneously detect abrupt changes.
 
-### Signal distance
+Location permissions are required for "_Disaster Detection_".
 
-The signal distance is retrieved from the device's Bluetooth signal strength.
-This is calculated with a "drop-off" assuming the signal is weakened after traveling through solid objects.
+## Battery usage
 
-The signal is not accurate and should only be used to get a general direction.
+Igatha minimizes battery use by leveraging BLE and optimized sensor monitoring.
 
-For proper accuracy, third party bluetooth receivers can be used.
+The app can continuously broadcast for extended periods during emergencies.
 
-## Important Notes
+## Limitations
 
-- This is a Minimum Viable Product (MVP) with significant room for improvement
-- Testing has been limited to controlled environments
-- While not guaranteed to work in all scenarios, it provides a potential lifeline where no alternatives exist
+### Early stage
 
-## Why Open Source?
+* This is a Minimum Viable Product (MVP) with significant room for improvement
+* Testing has been limited to controlled environments
+* While not guaranteed to work in all scenarios, it provides a potential lifeline where no alternatives exist
+
+### Signal range
+
+* BLE range: typically 10-30 meters indoors, further outdoors, limited by rubble and building materials.
+* Optional extensions: Third-party BLE receivers can extend range significantly.
+
+## Why open source?
 
 Igatha is open-sourced for:
 
@@ -103,24 +104,22 @@ Igatha is open-sourced for:
 
 ## Contributing
 
-We welcome contributions to improve Igatha's effectiveness:
-
-- Testing and bug reports
-- Documentation
-- Translations
-- Feature enhancements
-- Code optimization
-- Security reviews
+Contributions are vital for improving Igatha:
+* Testing and bug reports
+* Documentation
+* Translations
+* Feature enhancements
+* Code optimization
+* Security reviews
+* Distribution
 
 To contribute, open an issue or submit a pull request.
 
-## Privacy & Security
+## Privacy & security
 
-- No data collection
-- Offline-only operation
-- Pseudonymized identifiers
-- No internet connectivity required
+* Completely offline; no data collection or internet connectivity.
+* Uses pseudonymized identifiers for privacy.
 
 ## Contact
 
-For questions or suggestions, please open an issue in the repository.
+For questions, suggestions, or feedback, please open an issue in the repository.
