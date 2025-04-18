@@ -17,9 +17,12 @@ class EmergencyManager private constructor(context: Context) {
         @Volatile
         private var instance: EmergencyManager? = null
 
-        fun getInstance(context: Context): EmergencyManager {
+        fun getInstance(ctx: Context?): EmergencyManager {
+            val appCtx = ctx?.applicationContext
+                ?: throw IllegalStateException("EmergencyManager requested with null Context")
+
             return instance ?: synchronized(this) {
-                instance ?: EmergencyManager(context.applicationContext).also { instance = it }
+                instance ?: EmergencyManager(appCtx).also { instance = it }
             }
         }
     }

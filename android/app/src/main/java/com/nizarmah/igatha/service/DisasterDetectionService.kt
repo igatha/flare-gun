@@ -12,13 +12,15 @@ class DisasterDetectionService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    private val emergencyManager = EmergencyManager.getInstance(this)
+    private lateinit var emergencyManager: EmergencyManager
 
     private var confirmationJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
 
+        // Initialize inside onCreate because context is not available earlier
+        emergencyManager = EmergencyManager.getInstance(applicationContext)
         emergencyManager.startDetector()
 
         // Start the service in the foreground with a low-priority notification

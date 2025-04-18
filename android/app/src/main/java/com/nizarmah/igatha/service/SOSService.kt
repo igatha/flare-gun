@@ -12,10 +12,13 @@ class SOSService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    private val emergencyManager = EmergencyManager.getInstance(this)
+    private lateinit var emergencyManager: EmergencyManager
 
     override fun onCreate() {
         super.onCreate()
+
+        // Initialize inside onCreate because context is not available earlier
+        emergencyManager = EmergencyManager.getInstance(applicationContext)
 
         startSOS()
     }
