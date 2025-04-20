@@ -105,7 +105,7 @@ class FeedbackFormViewModel: ObservableObject {
     }
 }
 
-// UsageFeedbackGoogleForm has the submission logic for https://forms.gle/rcu3MZjPYww7Fbnh7.
+// UsageFeedbackGoogleForm has the submission logic for https://forms.gle/rcu3MZjPYww7Fbnh7. [1]
 // This class performs network operations and does not need to be @MainActor.
 class UsageFeedbackGoogleForm {
     // formUrl is the URL for the POST request.
@@ -257,3 +257,13 @@ enum UsageReason: Hashable, Identifiable, CaseIterable {
         }
     }
 }
+
+/* Notes
+
+ [1]:
+    I am aware that the Google form can be spammed.
+    I care most about emails, and this helps me reach users directly.
+    I made sure there's no long term or financial damage from spam.
+    This cheap implementation to get emails here outweighs any other.
+
+ */
