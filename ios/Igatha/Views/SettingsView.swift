@@ -12,7 +12,9 @@ struct SettingsView: View {
     
     var body: some View {
         Form {
+            // Background services.
             Section {
+                // Disaster detection.
                 Toggle(isOn: $viewModel.disasterDetectionEnabled) {
                     Text("Disaster Detection")
                     
@@ -27,8 +29,23 @@ struct SettingsView: View {
                 Text("Services might require additional permissions.")
                     .padding(.vertical, 4)
             }
+            
+            // Feedback.
+            Section {
+                FeedbackButtonView()
+                // removes the section padding around the feedback row
+                    .listRowInsets(EdgeInsets())
+            } header: {
+                Text("Feedback")
+                    .padding(.vertical, 4)
+            } footer: {
+                Text("Your feedback helps us improve Igatha, for everyone.")
+                    .padding(.vertical, 4)
+            }
         }
         .navigationTitle("Settings")
+        // Keep the title small.
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
