@@ -82,7 +82,9 @@ struct FeedbackFormView: View {
             Section {
                 Button(action: {
                     guard vm.formState == .idle else { return }
-                    vm.submit()
+                    
+                    // Run the async submit function in a Task
+                    Task { await vm.submit() }
                 }) {
                     HStack {
                         Text("Submit")

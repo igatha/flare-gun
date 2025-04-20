@@ -8,6 +8,7 @@
 import SwiftUI
 
 // FeedbackFormViewModel handles all logic for the feedback form view.
+@MainActor // Ensure all properties and methods are accessed on the main thread
 class FeedbackFormViewModel: ObservableObject {
     
     // formState stores the state of the form.
@@ -67,7 +68,7 @@ class FeedbackFormViewModel: ObservableObject {
     }
     
     // submit submits the feedback form.
-    public func submit() {
+    public func submit() async {
         // Validate the form and return the error if it's invalid.
         if let errMsg = validateForm() {
             submissionResult = .err(errMsg)
@@ -87,31 +88,25 @@ class FeedbackFormViewModel: ObservableObject {
         let form = UsageFeedbackGoogleForm(feedback: feedback)
         
         // Submit the form asynchronously.
-        Task {
-            do {
-                // Try to submit the form.
-                try await form.submit()
-                
-                // Show the success alert.
-                await MainActor.run {
-                    submissionResult = .success
-                }
-            } catch {
-                // Show the error alert.
-                await MainActor.run {
-                    submissionResult = .err("Your feedback could not be submitted. Please try again later.")
-                }
-            }
+        // No inner Task needed as this function is already async and @MainActor
+        do {
+            // Try to submit the form.
+            try await form.submit()
             
-            // Update form state to idle.
-            await MainActor.run {
-                formState = .idle
-            }
+            // Show the success alert. Updates are safe due to @MainActor.
+            submissionResult = .success
+        } catch {
+            // Show the error alert. Updates are safe due to @MainActor.
+            submissionResult = .err("Your feedback could not be submitted. Please try again later.")
         }
+        
+        // Update form state to idle. Updates are safe due to @MainActor.
+        formState = .idle
     }
 }
 
 // UsageFeedbackGoogleForm has the submission logic for https://forms.gle/rcu3MZjPYww7Fbnh7.
+// This class performs network operations and does not need to be @MainActor.
 class UsageFeedbackGoogleForm {
     // formUrl is the URL for the POST request.
     private let formUrl = URL(string: "https://docs.google.com/forms/u/0/d/e/1FAIpQLSdCdNYIaPcg2-eAs1Mlvwoa6P5Ijqfdb1hmWlaA-poIKpMDtQ/formResponse")!
@@ -143,7 +138,13 @@ class UsageFeedbackGoogleForm {
         request.httpBody = comps.percentEncodedQuery?.data(using: .utf8)
         
         // Send the request.
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        // Log the response only in non-release builds.
+#if !RELEASE
+        print("Response: \(response)")
+        print("Data: \(data)")
+#endif
         
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
             throw URLError(.badServerResponse)
