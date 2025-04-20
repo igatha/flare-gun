@@ -8,7 +8,7 @@
 import SwiftUI
 
 // FeedbackFormViewModel handles all logic for the feedback form view.
-@MainActor // Ensure all properties and methods are accessed on the main thread
+@MainActor
 class FeedbackFormViewModel: ObservableObject {
     
     // formState stores the state of the form.
@@ -88,7 +88,6 @@ class FeedbackFormViewModel: ObservableObject {
         let form = UsageFeedbackGoogleForm(feedback: feedback)
         
         // Submit the form asynchronously.
-        // No inner Task needed as this function is already async and @MainActor
         do {
             // Try to submit the form.
             try await form.submit()
