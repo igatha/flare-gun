@@ -32,7 +32,7 @@ struct SettingsView: View {
             
             // Feedback.
             Section {
-                FeedbackRowView()
+                FeedbackButtonView()
                 // removes the section padding around the feedback row
                     .listRowInsets(EdgeInsets())
             } header: {
@@ -44,6 +44,8 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        // Keep the title small.
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
