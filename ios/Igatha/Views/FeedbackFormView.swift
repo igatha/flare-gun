@@ -7,143 +7,124 @@
 
 import SwiftUI
 
+// Feedback form to understand why people use Igatha.
 struct FeedbackFormView: View {
-    // Store feedback form inputs
-    @State private var selectedReasons: Set<UsageReason> = []
-    @State private var otherReasonDescription: String = ""
-    @State private var helpfulnessDescription: String = ""
-    @State private var contactEmail: String = ""
-
-    // Retrieve all possible reasons
-    let reasons = UsageReason.allCases
-
+    // vm is the view model with the form logic.
+    @StateObject private var vm = FeedbackFormViewModel()
+    
+    // dismiss is the environment variable that dismisses the current view.
+    // This is not the best approach, but it's good enough for this case.
+    @Environment(\.dismiss) private var dismiss
+    
+    // body is the main view of the form.
     var body: some View {
         Form {
-            // usage reason options
+            // Usage reasons.
             Section {
-                // display each reason as a tappable row
-                ForEach(reasons) { reason in
+                ForEach(UsageReason.allCases) { reason in
                     HStack {
-                        // text
+                        // Reason.
                         VStack(alignment: .leading) {
-                            // text
+                            // Text.
                             Text(reason.displayString)
-
-                            // subtext (examples)
-                            if let example = reason.exampleString {
-                                Text(example)
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                            
+                            // Subtext.
+                            if let examples = reason.exampleString {
+                                Text(examples).font(.caption).foregroundColor(.secondary)
                             }
                         }
-
-                        // push the checkmark to the right
+                        
                         Spacer()
-
-                        // show checkmark if selected
-                        if selectedReasons.contains(reason) {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.accentColor)
+                        
+                        // If selected, show checkmark.
+                        if vm.isUsageReasonSelected(reason) {
+                            Image(systemName: "checkmark").foregroundColor(.accentColor)
                         }
                     }
-                    // ensure the whole row area is tappable
+                    // Make the row is tappable.
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        // toggle reason selection in the Set
-                        if selectedReasons.contains(reason) {
-                            selectedReasons.remove(reason)
-
-                            // clear description when 'other' is deselected
-                            if reason == .other {
-                                otherReasonDescription = ""
-                            }
-                        } else {
-                            selectedReasons.insert(reason)
-                        }
+                        vm.toggleUsageReason(reason)
                     }
                 }
-
-                // only show a text field when 'other' is selected
-                if selectedReasons.contains(.other) {
-                    TextField("Please describe", text: $otherReasonDescription)
+                
+                // If other reason, show text field.
+                if vm.hasCustomUsage {
+                    TextField("Please describe", text: $vm.customUsage)
                 }
             } header: {
                 Text("Why do you use Igatha?")
             } footer: {
                 Text("Select all that apply.")
             }
-
-            // helpfulness feedback
+            
+            // Ideas.
             Section {
-                TextEditor(text: $helpfulnessDescription)
+                TextEditor(text: $vm.ideas).frame(minHeight: 90)
             } header: {
                 Text("What would make Igatha more helpful?")
             } footer: {
-                Text("Optional. If there's anything on your mind, don't hesitate.")
+                Text("Optional. If you have any ideas, don't hesitate.")
             }
-
-            // contact information
+            
+            // Email.
             Section {
-                TextField("Your email address", text: $contactEmail)
+                TextField("Email address", text: $vm.email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
             } header: {
-                Text("Would you like us to contact you?")
+                Text("Your email")
             } footer: {
-                Text("Optional. We'll only use this if we have follow-up questions about your feedback.")
+                Text("Optional. We'll only contact you for clarifications.")
+            }
+            
+            // Submit.
+            Section {
+                Button(action: {
+                    guard vm.formState == .idle else { return }
+                    vm.submit()
+                }) {
+                    HStack {
+                        Text("Submit")
+                        
+                        Spacer()
+                        
+                        // If submitting, show progress view.
+                        if vm.formState == .submitting {
+                            ProgressView()
+                        }
+                    }
+                }
+                .disabled(vm.formState == .submitting)
             }
         }
-        .navigationTitle("Share Feedback")
-    }
-}
-
-
-// Defines the reasons for using the app
-enum UsageReason: Hashable, Identifiable, CaseIterable {
-    case disasterPreparedness
-    case adventureTravel
-    case caregiving
-    case workplaceSafety
-    case regionalConflict
-    case other
-
-    var id: Self { self }
-
-    // all cases for iteration
-    static var allCases: [UsageReason] = [
-        .disasterPreparedness, .adventureTravel, .caregiving, .workplaceSafety, .regionalConflict, .other
-    ]
-
-    // text
-    var displayString: String {
-        switch self {
-        case .disasterPreparedness: return "Disaster Preparedness"
-        case .adventureTravel: return "Adventure & Travel"
-        case .caregiving: return "Caregiving"
-        case .workplaceSafety: return "Workplace Safety"
-        case .regionalConflict: return "Regional Conflict or Instability"
-        case .other: return "Other"
-        }
-    }
-
-    // subtext (examples)
-    var exampleString: String? {
-        switch self {
-        case .disasterPreparedness: return "e.g., earthquakes, floods, conflicts"
-        case .adventureTravel: return "e.g., hiking, biking, remote trips"
-        case .caregiving: return "e.g., monitoring elderly or dependents"
-        case .workplaceSafety: return "e.g., construction, mining, field jobs"
-        case .regionalConflict: return "e.g., war, civil unrest, political instability"
-        case .other: return "Please specify below"
+        .navigationBarTitle("Share Feedback", displayMode: .inline)
+        .alert(item: $vm.submissionResult) { result in
+            switch result {
+            case .success:
+                return Alert(
+                    title: Text("Thank you!"),
+                    message: Text("Your feedback helps us improve Igatha."),
+                    dismissButton: .cancel(Text("Done")) {
+                        vm.dismissAlert()
+                        dismiss()
+                    }
+                )
+            case .err(let message):
+                return Alert(
+                    title: Text("Error"),
+                    message: Text(message),
+                    dismissButton: .cancel(Text("OK")) {
+                        vm.dismissAlert()
+                    }
+                )
+            }
         }
     }
 }
 
-// preview provider
 struct FeedbackFormView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            FeedbackFormView()
-        }
+        NavigationView { FeedbackFormView() }
     }
 }
