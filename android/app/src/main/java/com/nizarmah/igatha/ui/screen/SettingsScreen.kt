@@ -13,7 +13,7 @@ import com.nizarmah.igatha.viewmodel.SettingsViewModelFactory
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
-    onNavigateToFeedback: () -> Unit
+    onFeedbackClick: () -> Unit
 ) {
     val context = LocalContext.current.applicationContext as Application
     val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(context))
@@ -25,6 +25,6 @@ fun SettingsScreen(
             viewModel.setDisasterDetectionEnabled(enabled)
         },
         onBackClick = onBackClick,
-        onFeedbackClick = onNavigateToFeedback
+        onFeedbackClick = onFeedbackClick
     )
 }

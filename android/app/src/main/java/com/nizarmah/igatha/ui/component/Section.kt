@@ -48,7 +48,9 @@ fun Section(
 fun SectionHeader(text: String) {
     Text(
         text = text.uppercase(),
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodySmall.copy(
+            lineHeight = MaterialTheme.typography.bodySmall.fontSize.times(1.4f)
+        ),
         color = MaterialTheme.colorScheme.secondary,
         modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
     )

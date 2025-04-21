@@ -92,7 +92,7 @@ fun ContentScreen(modifier: Modifier) {
                 onBackClick = {
                     navController.popBackStack()
                 },
-                onNavigateToFeedback = {
+                onFeedbackClick = {
                     navController.navigate("feedback")
                 }
             )
