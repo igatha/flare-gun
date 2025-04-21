@@ -16,24 +16,31 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Section(
-    header: String,
-    footer: String,
+    header: String? = null,
+    footer: String? = null,
+    padding: Modifier = Modifier.padding(vertical = 8.dp),
     content: @Composable () -> Unit,
 ) {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        SectionHeader(text = header)
+    Column(modifier = padding) {
+        header?.let {
+            SectionHeader(text = it)
+        }
 
         Surface(
             color = MaterialTheme.colorScheme.surface,
             shape = MaterialTheme.shapes.medium,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 0.dp)
         ) {
             Column {
                 content()
             }
         }
 
-        SectionFooter(text = footer)
+        footer?.let {
+            SectionFooter(text = it)
+        }
     }
 }
 

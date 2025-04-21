@@ -91,6 +91,17 @@ fun ContentScreen(modifier: Modifier) {
             SettingsScreen(
                 onBackClick = {
                     navController.popBackStack()
+                },
+                onNavigateToFeedback = {
+                    navController.navigate("feedback")
+                }
+            )
+        }
+
+        composable("feedback") {
+            FeedbackFormScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

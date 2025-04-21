@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nizarmah.igatha.ui.component.FeedbackButtonView
 import com.nizarmah.igatha.ui.component.Section
 import com.nizarmah.igatha.ui.component.SectionItem
 import com.nizarmah.igatha.ui.theme.IgathaTheme
@@ -19,7 +20,8 @@ import com.nizarmah.igatha.ui.theme.IgathaTheme
 fun SettingsView(
     disasterDetectionEnabled: Boolean,
     onDisasterDetectionEnabledChanged: (Boolean) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onFeedbackClick: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -70,6 +72,19 @@ fun SettingsView(
                             Switch(
                                 checked = disasterDetectionEnabled,
                                 onCheckedChange = onDisasterDetectionEnabledChanged
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Section(
+                        header = "Feedback",
+                        footer = "Your feedback helps us improve Igatha, for everyone."
+                    ) {
+                        Box(modifier = Modifier.padding(horizontal = 0.dp)) {
+                            FeedbackButtonView(
+                                onClick = onFeedbackClick
                             )
                         }
                     }
