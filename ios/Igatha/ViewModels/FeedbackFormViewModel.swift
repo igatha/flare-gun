@@ -104,6 +104,7 @@ class FeedbackFormViewModel: ObservableObject {
             "Connection error. Check your internet connection." : error.localizedDescription
             
             // Log the error with full details for troubleshooting
+            // TODO: Replace local logging with an error reporting service
             NSLog("Error submitting form - Ref: \(refId) - Details: \(errorMessage)")
             
             // Show the error alert with reference ID

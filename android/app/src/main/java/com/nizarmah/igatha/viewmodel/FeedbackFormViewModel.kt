@@ -143,6 +143,7 @@ class FeedbackFormViewModel(
                 val refId = UUID.randomUUID().toString().substring(0, 8)
 
                 // Log the error with full details for troubleshooting (shows in logcat)
+                // TODO: Replace local logging with an error reporting service
                 android.util.Log.e(
                     "FeedbackForm",
                     "Error submitting form - Ref: $refId - Details: $errorMessage",
