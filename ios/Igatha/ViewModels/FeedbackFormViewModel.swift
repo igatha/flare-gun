@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 // FeedbackFormViewModel handles all logic for the feedback form view.
 @MainActor
@@ -95,8 +96,18 @@ class FeedbackFormViewModel: ObservableObject {
             // Show the success alert. Updates are safe due to @MainActor.
             submissionResult = .success
         } catch {
-            // Show the error alert. Updates are safe due to @MainActor.
-            submissionResult = .err("Your feedback could not be submitted. Please try again later.")
+            // Generate a truncated reference ID
+            let refId = UUID().uuidString.prefix(8)
+            
+            // Get a descriptive error message
+            let errorMessage = error.localizedDescription.isEmpty ?
+            "Connection error. Check your internet connection." : error.localizedDescription
+            
+            // Log the error with full details for troubleshooting
+            NSLog("Error submitting form - Ref: \(refId) - Details: \(errorMessage)")
+            
+            // Show the error alert with reference ID
+            submissionResult = .err("Your feedback could not be submitted. Please try again later. (Ref: \(refId))")
         }
         
         // Update form state to idle. Updates are safe due to @MainActor.
@@ -137,13 +148,7 @@ class UsageFeedbackGoogleForm {
         request.httpBody = comps.percentEncodedQuery?.data(using: .utf8)
         
         // Send the request.
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        // Log the response only in non-release builds.
-#if !RELEASE
-        print("Response: \(response)")
-        print("Data: \(data)")
-#endif
+        let (_, response) = try await URLSession.shared.data(for: request)
         
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
             throw URLError(.badServerResponse)
@@ -258,11 +263,11 @@ enum UsageReason: Hashable, Identifiable, CaseIterable {
 }
 
 /* Notes
-
+ 
  [1]:
-    I am aware that the Google form can be spammed.
-    I care most about emails, and this helps me reach users directly.
-    I made sure there's no long term or financial damage from spam.
-    This cheap implementation to get emails here outweighs any other.
-
+ I am aware that the Google form can be spammed.
+ I care most about emails, and this helps me reach users directly.
+ I made sure there's no long term or financial damage from spam.
+ This cheap implementation to get emails here outweighs any other.
+ 
  */
