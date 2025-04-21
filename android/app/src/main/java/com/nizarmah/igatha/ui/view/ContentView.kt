@@ -85,7 +85,12 @@ fun ContentView(
                 AlertDialog(
                     onDismissRequest = onDismissAlert,
                     title = { Text("Are you sure?") },
-                    text = { Text("This will broadcast your location and start a loud siren.") },
+                    text = {
+                        Text(
+                            text = "This will broadcast your location and start a loud siren.",
+                            lineHeight = MaterialTheme.typography.bodyMedium.fontSize.times(1.4f)
+                        )
+                    },
                     confirmButton = {
                         TextButton(
                             onClick = onConfirmSOS

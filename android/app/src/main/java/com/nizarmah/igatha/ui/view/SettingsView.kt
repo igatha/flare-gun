@@ -60,10 +60,13 @@ fun SettingsView(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
 
+                                Spacer(modifier = Modifier.height(4.dp))
+
                                 Text(
                                     text = "Detects disasters and sends SOS when the app is not in use. This may increase battery consumption.",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.secondary
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    lineHeight = MaterialTheme.typography.bodySmall.fontSize.times(1.4f)
                                 )
                             }
 

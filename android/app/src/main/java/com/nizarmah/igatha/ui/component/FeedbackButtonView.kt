@@ -76,6 +76,7 @@ fun FeedbackButtonView(
                     Text(
                         text = "Tell us why you use Igatha",
                         style = MaterialTheme.typography.titleMedium,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                         color = Color.White
                     )
 

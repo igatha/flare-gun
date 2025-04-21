@@ -273,12 +273,16 @@ private fun UsageReasonItem(
                 style = MaterialTheme.typography.bodyLarge
             )
 
+            // Add spacing between title and example
+            Spacer(modifier = Modifier.height(4.dp))
+
             // Subtext
             reason.exampleString?.let { example ->
                 Text(
                     text = example,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = MaterialTheme.typography.bodySmall.fontSize.times(1.4f)
                 )
             }
         }
