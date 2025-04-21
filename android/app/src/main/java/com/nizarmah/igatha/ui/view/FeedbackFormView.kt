@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nizarmah.igatha.ui.component.Section
 import com.nizarmah.igatha.ui.theme.IgathaTheme
-import com.nizarmah.igatha.ui.theme.Red
 import com.nizarmah.igatha.viewmodel.FormState
 import com.nizarmah.igatha.viewmodel.UsageReason
 
@@ -203,7 +202,7 @@ fun FeedbackFormView(
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = Red
+                                contentColor = MaterialTheme.colorScheme.primary
                             ),
                             contentPadding = PaddingValues(16.dp)
                         ) {
@@ -289,7 +288,7 @@ private fun UsageReasonItem(
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = "Selected",
-                tint = Red
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }

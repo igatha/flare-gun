@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nizarmah.igatha.ui.theme.IgathaTheme
+import com.nizarmah.igatha.ui.theme.colors
 
 /**
  * A styled button for navigation to the feedback form.
@@ -34,8 +35,8 @@ fun FeedbackButtonView(
     // Create a pink-to-purple gradient to match iOS
     val gradient = Brush.linearGradient(
         colors = listOf(
-            Color(0xFFFF3B8B).copy(alpha = 0.6f),  // Pink color from iOS
-            Color(0xFF9D52FF).copy(alpha = 0.6f)   // Purple color from iOS
+            MaterialTheme.colors.pink.copy(alpha = 0.6f),
+            MaterialTheme.colors.purple.copy(alpha = 0.6f)
         ),
         start = Offset.Zero,
         end = Offset.Infinite

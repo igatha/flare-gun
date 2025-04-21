@@ -8,11 +8,20 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme()
+private val BaseLightColorScheme = lightColorScheme()
 
-private val LightColorScheme = lightColorScheme()
+private val BaseDarkColorScheme = darkColorScheme()
+
+private val LightColorScheme = BaseLightColorScheme.copy(
+    primary = RedLight,
+)
+
+private val DarkColorScheme = BaseDarkColorScheme.copy(
+    primary = RedDark,
+)
 
 @Composable
 fun IgathaTheme(
@@ -31,9 +40,17 @@ fun IgathaTheme(
         else -> LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    // Select the appropriate iOS colors based on theme
+    val colors = if (darkTheme) DarkColors else LightColors
+
+    // Provide both Material and iOS colors down the tree
+    CompositionLocalProvider(
+        LocalColors provides colors
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }
