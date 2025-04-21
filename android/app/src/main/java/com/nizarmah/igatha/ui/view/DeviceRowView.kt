@@ -54,6 +54,9 @@ fun DeviceRowView(device: Device, onClick: () -> Unit = {}) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = String.format(
                     Locale.getDefault(),

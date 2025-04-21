@@ -16,24 +16,31 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Section(
-    header: String,
-    footer: String,
+    header: String? = null,
+    footer: String? = null,
+    padding: Modifier = Modifier.padding(vertical = 8.dp),
     content: @Composable () -> Unit,
 ) {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        SectionHeader(text = header)
+    Column(modifier = padding) {
+        header?.let {
+            SectionHeader(text = it)
+        }
 
         Surface(
             color = MaterialTheme.colorScheme.surface,
             shape = MaterialTheme.shapes.medium,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 0.dp)
         ) {
             Column {
                 content()
             }
         }
 
-        SectionFooter(text = footer)
+        footer?.let {
+            SectionFooter(text = it)
+        }
     }
 }
 
@@ -41,7 +48,9 @@ fun Section(
 fun SectionHeader(text: String) {
     Text(
         text = text.uppercase(),
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodySmall.copy(
+            lineHeight = MaterialTheme.typography.bodySmall.fontSize.times(1.4f)
+        ),
         color = MaterialTheme.colorScheme.secondary,
         modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
     )
@@ -51,7 +60,9 @@ fun SectionHeader(text: String) {
 fun SectionFooter(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodySmall.copy(
+            lineHeight = MaterialTheme.typography.bodySmall.fontSize.times(1.4f)
+        ),
         color = MaterialTheme.colorScheme.secondary,
         modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
     )

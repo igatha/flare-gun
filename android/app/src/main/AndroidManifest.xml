@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- FeedbackFormViewModel - Required for Google Forms submission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- ProximityScanner | SOSBeacon -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />

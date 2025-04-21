@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nizarmah.igatha.ui.theme.Gray
 import com.nizarmah.igatha.ui.theme.IgathaTheme
-import com.nizarmah.igatha.ui.theme.Red
 import com.nizarmah.igatha.model.Device
 import com.nizarmah.igatha.viewmodel.AlertType
 import java.util.Date
@@ -86,7 +85,12 @@ fun ContentView(
                 AlertDialog(
                     onDismissRequest = onDismissAlert,
                     title = { Text("Are you sure?") },
-                    text = { Text("This will broadcast your location and start a loud siren.") },
+                    text = {
+                        Text(
+                            text = "This will broadcast your location and start a loud siren.",
+                            lineHeight = MaterialTheme.typography.bodyMedium.fontSize.times(1.4f)
+                        )
+                    },
                     confirmButton = {
                         TextButton(
                             onClick = onConfirmSOS
@@ -125,10 +129,10 @@ fun SOSButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = when {
                 isSOSActive -> Gray
-                else -> Red
+                else -> MaterialTheme.colorScheme.primary
             },
             contentColor = Color.White,
-            disabledContainerColor = Red,
+            disabledContainerColor = MaterialTheme.colorScheme.primary,
             disabledContentColor = Color.White
         )
     ) {
