@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
-    
+
     var body: some View {
         Form {
             // Background services.
@@ -17,7 +17,7 @@ struct SettingsView: View {
                 // Disaster detection.
                 Toggle(isOn: $viewModel.disasterDetectionEnabled) {
                     Text("Disaster Detection")
-                    
+
                     Text("Detects disasters and sends SOS when the app is not in use. This requires location permission. This may increase battery consumption.")
                         .font(.caption)
                         .foregroundColor(.gray)
@@ -29,7 +29,7 @@ struct SettingsView: View {
                 Text("Services might require additional permissions.")
                     .padding(.vertical, 4)
             }
-            
+
             // Feedback.
             Section {
                 FeedbackButtonView()

@@ -27,6 +27,23 @@
             <string>audio</string>
             <!-- Used by disaster detector -->
             <string>location</string>
+            <!-- Used for scheduled notifications -->
+            <string>remote-notification</string>
+        </array>
+
+        <!-- URL Scheme for Deep Links -->
+        <key>CFBundleURLTypes</key>
+        <array>
+            <dict>
+                <key>CFBundleTypeRole</key>
+                <string>Editor</string>
+                <key>CFBundleURLName</key>
+                <string>com.nizarmah.igatha</string>
+                <key>CFBundleURLSchemes</key>
+                <array>
+                    <string>igatha</string>
+                </array>
+            </dict>
         </array>
 
         <!-- Compliance -->

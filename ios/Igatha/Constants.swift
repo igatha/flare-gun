@@ -32,4 +32,35 @@ struct Constants {
 
     // percentage of how much a new value should affect the old value
     static let RSSIExponentialMovingAverageSmoothingFactor: Double = 0.18
+
+    // Deep links.
+    struct DeepLink {
+        // Properties.
+        static let Key: String = "deepLink"
+        static let Scheme: String = "igatha"
+
+        // Actions.
+        struct Settings {
+            static let Name: String = "OpenSettings"
+            static let Value: String = "settings"
+        }
+    }
+
+    // Notification identifiers
+    struct Notifications {
+        struct Feedback {
+            static let Id: String = "feedbackRequest"
+
+            // We open Settings instead of FeedbackForm because it's easier
+            // Chaining NavigationLink(isActive) is a bit difficult, when nested
+            // Once we start using iOS 16+, we'll be able to open the form directly
+            static let Link = DeepLink.Settings.self
+
+            // Delay before the notification is shown (in seconds)
+            static let TriggerDelay: TimeInterval = 3 * 24 * 60 * 60
+
+            // Key for the timestamp of the feedback request notification
+            static let TimestampKey: String = "feedbackScheduledTimestamp"
+        }
+    }
 }

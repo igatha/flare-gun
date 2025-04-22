@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = ContentViewModel()
+    @StateObject private var deepLinkHandler = DeepLinkHandler.shared
 
     var body: some View {
         NavigationView {
@@ -60,7 +61,8 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(
                 trailing: NavigationLink(
-                    destination: SettingsView()
+                    destination: SettingsView(),
+                    isActive: $deepLinkHandler.showSettings
                 ) {
                     Image(systemName: "gearshape")
                         .imageScale(.large)
