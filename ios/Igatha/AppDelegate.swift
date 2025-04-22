@@ -19,9 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         // Initialize managers in the background
-        Task {
-            await setupManagers()
-        }
+        Task { await setupManagers() }
 
         return true
     }
