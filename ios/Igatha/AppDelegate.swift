@@ -18,17 +18,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions:
         [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        // Initialize managers in the background
+        Task {
+            await setupManagers()
+        }
+
+        return true
+    }
+
+    private func setupManagers() async {
+        // Initialize notification manager first since it needs to be set as delegate
+        notificationManager = NotificationManager.shared
+
         // Initialize emergency manager
         emergencyManager = EmergencyManager.shared
-
-        // Initialize notification manager and request authorization
-        notificationManager = NotificationManager.shared
-        notificationManager.setup()
 
         // Initialize deep link handler
         deepLinkHandler = DeepLinkHandler.shared
 
-        return true
+        // Set up notification manager (will request permissions and schedule notifications)
+        await notificationManager.setup()
     }
 
     // Handle deep links when app is launched via URL

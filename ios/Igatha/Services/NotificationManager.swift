@@ -13,14 +13,12 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationManager()
 
     // setup is called when the app is launched
-    public func setup() {
-        // Request authorization and schedule notification using Task
-        Task {
-            let granted = await requestAuthorization()
-            guard granted else { return }
-
-            // Schedule feedback request notification when permission is granted
+    func setup() async {
+        do {
+            try await requestAuthorization()
             await scheduleFeedbackRequestNotification()
+        } catch {
+            NSLog("Error setting up notification manager: \(error)")
         }
     }
 
@@ -32,10 +30,9 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     }
 
     // requestAuthorization requests notification permission
-    private func requestAuthorization() async -> Bool {
-        return (try? await UNUserNotificationCenter.current().requestAuthorization(
-            options: [.alert, .sound, .badge]
-        )) ?? false
+    private func requestAuthorization() async throws {
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        try await UNUserNotificationCenter.current().requestAuthorization(options: options)
     }
 
     // scheduleFeedbackRequestNotification schedules the feedback request notification
