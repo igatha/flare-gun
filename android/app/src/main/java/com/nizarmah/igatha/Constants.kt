@@ -40,4 +40,15 @@ object Constants {
     const val ACTION_IGNORE_ALERT: String = "com.nizarmah.igatha.actions.IGNORE_ALERT"
     const val ACTION_START_SOS: String = "com.nizarmah.igatha.actions.START_SOS"
     const val ACTION_STOP_SOS: String = "com.nizarmah.igatha.actions.STOP_SOS"
+
+    // Deep links
+    object DeepLink {
+        const val KEY = "deepLink"
+        const val SCHEME = "igatha"
+
+        object Settings {
+            const val NAME = "OpenSettings"
+            const val VALUE = "settings"
+        }
+    }
 }
