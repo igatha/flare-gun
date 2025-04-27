@@ -21,7 +21,12 @@ class DisasterDetectionService : Service() {
 
         // Initialize inside onCreate because context is not available earlier
         emergencyManager = EmergencyManager.getInstance(applicationContext)
-        emergencyManager.startDetector()
+        val started = emergencyManager.startDetector()
+
+        // If the detector did not start, stop the service
+        if (!started) {
+            stopSelf()
+        }
 
         // Start the service in the foreground with a low-priority notification
         val notification = createNotification()

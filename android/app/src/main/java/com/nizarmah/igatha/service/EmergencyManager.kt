@@ -79,10 +79,11 @@ class EmergencyManager private constructor(context: Context) {
         sirenPlayer.stopSiren()
     }
 
-    fun startDetector() {
-        if (!isDetectorAvailable.value || isDetectorActive.value) return
+    fun startDetector(): Boolean {
+        if (!isDetectorAvailable.value || isDetectorActive.value) return false
 
         disasterDetector.startDetection()
+        return true
     }
 
     fun stopDetector() {
