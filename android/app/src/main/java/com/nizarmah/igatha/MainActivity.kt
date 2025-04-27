@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.nizarmah.igatha.ui.component.PermissionHandler
 import com.nizarmah.igatha.ui.screen.ContentScreen
 import com.nizarmah.igatha.ui.theme.IgathaTheme
+import com.nizarmah.igatha.util.PermissionsManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,6 +25,11 @@ class MainActivity : ComponentActivity() {
                 MainScreen()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        PermissionsManager.refreshPermissions(this)
     }
 }
 
