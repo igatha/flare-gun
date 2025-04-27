@@ -21,7 +21,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            IgathaTheme {
+            IgathaTheme(
+                // Disable dynamic wallpaper-based theming
+                // so our static red primary is used instead
+                dynamicColor = false
+            ) {
                 MainScreen()
             }
         }
