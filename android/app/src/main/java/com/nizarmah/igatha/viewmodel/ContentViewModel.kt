@@ -49,7 +49,7 @@ class ContentViewModel(app: Application) : AndroidViewModel(app) {
     init {
         // Observe the disaster detection availability
         viewModelScope.launch {
-            emergencyManager.isDetectorAvailable.collect { available ->
+            emergencyManager.isDetectorEnabled.collect { available ->
                 if (available) {
                     startDisasterDetectionService()
                 } else {

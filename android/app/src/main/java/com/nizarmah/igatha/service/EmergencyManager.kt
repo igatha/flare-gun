@@ -59,10 +59,15 @@ class EmergencyManager private constructor(context: Context) {
     val isDetectorAvailable: StateFlow<Boolean> = combine(
         disasterDetector.isAvailable,
         isSOSAvailable,
-        SettingsManager.disasterDetectionEnabled,
         PermissionsManager.disasterDetectionPermitted
-    ) { detector, sos, enabled, permitted ->
-        detector && sos && enabled && permitted
+    ) { detector, sos, permitted ->
+        detector && sos && permitted
+    }.stateIn(scope, SharingStarted.Eagerly, false)
+    val isDetectorEnabled: StateFlow<Boolean> = combine(
+        isDetectorAvailable,
+        SettingsManager.disasterDetectionEnabled
+    ) { available, enabled ->
+        available && enabled
     }.stateIn(scope, SharingStarted.Eagerly, false)
     val isDetectorActive: StateFlow<Boolean> = disasterDetector.isActive
 
@@ -79,10 +84,13 @@ class EmergencyManager private constructor(context: Context) {
         sirenPlayer.stopSiren()
     }
 
-    fun startDetector() {
-        if (!isDetectorAvailable.value || isDetectorActive.value) return
+    fun startDetector(): Boolean {
+        if (!isDetectorEnabled.value) return false
+
+        if (isDetectorActive.value) return true
 
         disasterDetector.startDetection()
+        return true
     }
 
     fun stopDetector() {

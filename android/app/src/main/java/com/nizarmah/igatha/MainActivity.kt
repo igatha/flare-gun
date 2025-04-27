@@ -14,16 +14,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.nizarmah.igatha.ui.component.PermissionHandler
 import com.nizarmah.igatha.ui.screen.ContentScreen
 import com.nizarmah.igatha.ui.theme.IgathaTheme
+import com.nizarmah.igatha.util.PermissionsManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            IgathaTheme {
+            IgathaTheme(
+                // Disable dynamic wallpaper-based theming
+                // so our static red primary is used instead
+                dynamicColor = false
+            ) {
                 MainScreen()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        PermissionsManager.refreshPermissions(this)
     }
 }
 

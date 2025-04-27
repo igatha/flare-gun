@@ -86,17 +86,15 @@ object PermissionsHelper {
             )
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions += arrayOf(
-                Manifest.permission.POST_NOTIFICATIONS
-            )
-        }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             permissions += arrayOf(
                 Manifest.permission.FOREGROUND_SERVICE_HEALTH
             )
         }
+
+        // Foreground services need a notification
+        // So, check notification permissions as well
+        permissions += getNotificationsPermissions()
 
         return permissions
     }
