@@ -18,9 +18,11 @@ fun SettingsScreen(
     val context = LocalContext.current.applicationContext as Application
     val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(context))
     val disasterDetectionEnabled by viewModel.disasterDetectionEnabled.collectAsState()
+    val isDisasterDetectionAvailable by viewModel.isDisasterDetectionAvailable.collectAsState()
 
     SettingsView(
         disasterDetectionEnabled = disasterDetectionEnabled,
+        isDisasterDetectionAvailable = isDisasterDetectionAvailable,
         onDisasterDetectionEnabledChanged = { enabled ->
             viewModel.setDisasterDetectionEnabled(enabled)
         },

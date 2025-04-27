@@ -19,6 +19,7 @@ import com.nizarmah.igatha.ui.theme.IgathaTheme
 @Composable
 fun SettingsView(
     disasterDetectionEnabled: Boolean,
+    isDisasterDetectionAvailable: Boolean,
     onDisasterDetectionEnabledChanged: (Boolean) -> Unit,
     onBackClick: () -> Unit,
     onFeedbackClick: () -> Unit = {}
@@ -74,7 +75,8 @@ fun SettingsView(
 
                             Switch(
                                 checked = disasterDetectionEnabled,
-                                onCheckedChange = onDisasterDetectionEnabledChanged
+                                onCheckedChange = onDisasterDetectionEnabledChanged,
+                                enabled = isDisasterDetectionAvailable
                             )
                         }
                     }
@@ -103,6 +105,7 @@ fun SettingsViewPreview() {
     IgathaTheme {
         SettingsView(
             disasterDetectionEnabled = true,
+            isDisasterDetectionAvailable = true,
             onDisasterDetectionEnabledChanged = {},
             onBackClick = {}
         )
