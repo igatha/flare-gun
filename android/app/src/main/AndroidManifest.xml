@@ -25,7 +25,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
     <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+
     <!-- See: https://developer.android.com/develop/ui/views/notifications/notification-permission -->
+    <!-- See: com.nizarmah.igatha.util.PermissionsHelper -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
         android:minSdkVersion="33" />
 

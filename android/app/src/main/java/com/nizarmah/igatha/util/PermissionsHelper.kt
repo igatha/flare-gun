@@ -5,6 +5,18 @@ import android.os.Build
 import kotlin.collections.plus
 
 object PermissionsHelper {
+    fun getNotificationsPermissions(): Array<String> {
+        var permissions = emptyArray<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions += arrayOf(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
+
+        return permissions
+    }
+
     fun getSOSPermissions(): Array<String> {
         var permissions = arrayOf(
             // SOS Beacon

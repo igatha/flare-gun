@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 object PermissionsManager {
+    private val _notificationsPermitted = MutableStateFlow(false)
+    val notificationsPermitted: StateFlow<Boolean> = _notificationsPermitted.asStateFlow()
+
     private val _sosPermitted = MutableStateFlow(false)
     val sosPermitted: StateFlow<Boolean> = _sosPermitted.asStateFlow()
 
@@ -26,9 +29,10 @@ object PermissionsManager {
     val permissionsGranted: StateFlow<Boolean> = combine(
         sosPermitted,
         disasterDetectionPermitted,
-        proximityScanPermitted
-    ) { sos, disaster, proximity ->
-        sos && disaster && proximity
+        proximityScanPermitted,
+        notificationsPermitted
+    ) { sos, disaster, proximity, notifications ->
+        sos && disaster && proximity && notifications
     }.stateIn(GlobalScope, SharingStarted.Eagerly, false)
 
     // Initialize by checking current permissions
@@ -38,6 +42,7 @@ object PermissionsManager {
 
     // Function to refresh the current permission state
     fun refreshPermissions(context: Context) {
+        _notificationsPermitted.value = hasPermissions(context, PermissionsHelper.getNotificationsPermissions())
         _sosPermitted.value = hasPermissions(context, PermissionsHelper.getSOSPermissions())
         _proximityScanPermitted.value = hasPermissions(context, PermissionsHelper.getProximityScanPermissions())
         _disasterDetectionPermitted.value = hasPermissions(context, PermissionsHelper.getDisasterDetectionPermissions())
