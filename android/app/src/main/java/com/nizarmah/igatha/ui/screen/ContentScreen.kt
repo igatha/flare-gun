@@ -1,5 +1,6 @@
 package com.nizarmah.igatha.ui.screen
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
@@ -12,7 +13,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.google.gson.Gson
+import com.nizarmah.igatha.Constants
 import com.nizarmah.igatha.model.Device
 import com.nizarmah.igatha.ui.view.ContentView
 import com.nizarmah.igatha.ui.view.DeviceDetailView
@@ -87,7 +90,17 @@ fun ContentScreen(modifier: Modifier) {
             )
         }
 
-        composable("settings") {
+        composable(
+            route = "settings",
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = Uri.Builder()
+                        .scheme(Constants.DeepLink.SCHEME)
+                        .authority(Constants.DeepLink.Settings.VALUE)
+                        .build().toString()
+                }
+            )
+        ) {
             SettingsScreen(
                 onBackClick = {
                     navController.popBackStack()

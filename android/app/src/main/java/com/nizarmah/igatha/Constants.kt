@@ -37,7 +37,33 @@ object Constants {
     const val DISTRESS_ACTIVE_NOTIFICATION_ID: Int = 3
     const val DISTRESS_ACTIVE_NOTIFICATION_KEY: String = "DISTRESS_ACTIVE"
 
+    const val FEEDBACK_NOTIFICATION_ID: Int = 4
+    const val FEEDBACK_NOTIFICATION_KEY: String = "FEEDBACK_REQUEST"
+
     const val ACTION_IGNORE_ALERT: String = "com.nizarmah.igatha.actions.IGNORE_ALERT"
     const val ACTION_START_SOS: String = "com.nizarmah.igatha.actions.START_SOS"
     const val ACTION_STOP_SOS: String = "com.nizarmah.igatha.actions.STOP_SOS"
+
+    // Deep links
+    object DeepLink {
+        const val SCHEME = "igatha"
+
+        object Settings {
+            const val VALUE = "settings"
+        }
+    }
+
+    // Notification constants
+    object Notifications {
+        object Feedback {
+            const val ID = "feedbackRequest"
+            val LINK = DeepLink.Settings
+
+            // Delay before notification is shown (3 days in seconds)
+            const val TRIGGER_DELAY: Long = 3 * 24 * 60 * 60
+
+            // Key for timestamp of when feedback request was scheduled
+            const val TIMESTAMP_KEY = "feedbackScheduledTimestamp"
+        }
+    }
 }
